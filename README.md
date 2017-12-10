@@ -1,6 +1,5 @@
-# sem
-# Projeto de Complex Survey Structural Equation Modeling 
-# Roda em uma VM ubuntu 17.10 no google cloud platform
+# sem - Projeto de Complex Survey Structural Equation Modeling 
+## Roda em uma VM ubuntu 17.10 no google cloud platform
 
 # GCP Config 
 
