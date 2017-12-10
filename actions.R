@@ -1416,7 +1416,7 @@ for(q in 1:length(quebras)){
     
     
     ## Definir diretorio para onde serao exportados os resultados
-    setwd(export)
+    #setwd(export)
     ## As estimativas dos parametros do modelo final:
     est_modelo_final<-NULL
     est_modelo_final<-parameterEstimates(modelo_final_final, 
@@ -1529,10 +1529,11 @@ for(q in 1:length(quebras)){
 
 #### vamos criar uma nova pasta das quebras
 
-dir.create(nivel_label)
-pasta_output<-paste(export, nivel_label,sep="\\")
+#dir.create(nivel_label)
+#pasta_output<-paste(export, nivel_label,sep="\\")
 fileName<-paste(nivel_label,"resultados_SEM.xlsx",sep="_")
-fileXls <- paste(pasta_output,fileName,sep='\\')
+#fileXls <- paste(pasta_output,fileName,sep='\\')
+fileXls <- fileName
 unlink(fileXls, recursive = FALSE, force = FALSE)
 exc <- loadWorkbook(fileXls, create = TRUE)
 
@@ -1545,8 +1546,7 @@ writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
 saveWorkbook(exc)
 
 ### Analise Fatorial Confirmatoria Diagnostico Stepwise
-
-fileGraph <- paste(pasta_output,'graph.png',sep='\\')
+fileGraph <- 'graph.png'
 png(filename = fileGraph, width = 800, height = 600)
 par(mfrow=c(2,3))
 plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
@@ -1561,6 +1561,7 @@ plot(alfa_cronbach, main="Quanto maior melhor",
 plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
 abline(h=0.5,col="red")
 invisible(dev.off())
+drop_upload(fileGraph)
 
 
 ### Estatisticas resumo modelo
@@ -1582,7 +1583,7 @@ saveWorkbook(exc)
 input <- r2_bancofim_v1
 writeWorksheet(exc, input, sheet ='Rsquared',header=T,rownames = T, startRow = 1, startCol = 2)
 saveWorkbook(exc)
-drop.upload(fileName)
+#drop_upload(fileName)
 #### Reliability CFA
 
 createSheet(exc,'ReliabilityCFA')
@@ -1633,7 +1634,7 @@ saveWorkbook(exc)
 input <- var_fora
 writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
 saveWorkbook(exc)
-drop_upload('ReliabilityCFA.xlsx')
+drop_upload(fileName)
 
   }
 }
