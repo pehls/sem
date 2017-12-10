@@ -14,6 +14,7 @@
 # sudo apt-get install r-base
 # sudo apt-get install openjdk-8-jdk
 # sudo apt-get install openjdk-8-source #opcional
+# sudo apt-get install r-cran-rjava
 # sudo apt-get install curl 
 # sudo apt-get install libssl-dev 
 # sudo apt-get install libcurl4-openssl-dev 
@@ -21,7 +22,7 @@
 # sudo apt-get install libgsl0ldbl
 # sudo apt-get install gsl-bin libgsl0-dev
 #######################################################################################
-############################# To open R, simply write "R" #############################
+############################# To open R, simply write "R" #############################.
 #######################################################################################
 #######################################################################################
 #######################################################################################
@@ -31,6 +32,8 @@ install.packages("lavaan")
 install.packages("foreign")
 
 install.packages("semTools")
+
+install.packages("rJava")
 
 install.packages("XLConnect")
 
@@ -50,6 +53,7 @@ library(httpuv)
 library(lavaan)
 library(foreign)
 library(semTools)
+library(rJava)
 library(XLConnect)
 library(survey)
 library(tidyverse)
@@ -1578,7 +1582,7 @@ saveWorkbook(exc)
 input <- r2_bancofim_v1
 writeWorksheet(exc, input, sheet ='Rsquared',header=T,rownames = T, startRow = 1, startCol = 2)
 saveWorkbook(exc)
-
+drop.upload(fileName)
 #### Reliability CFA
 
 createSheet(exc,'ReliabilityCFA')
@@ -1629,14 +1633,14 @@ saveWorkbook(exc)
 input <- var_fora
 writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
 saveWorkbook(exc)
-
+drop_upload('ReliabilityCFA.xlsx')
 
   }
 }
 
 Fim_Sintaxe_SEM<-Sys.time()
 tempo_total<-Fim_Sintaxe_SEM-Inicio_Sintaxe_SEM
-tempo_total
+Fim_Sintaxe_SEM - TempoTotal
 tempos2 <- imprimirTempoPonderacao(tempo_total, "Tempo total: ")
 indiceTempos2 <- indiceTempos2 +1
 ################################################################################################################################################################################################################
