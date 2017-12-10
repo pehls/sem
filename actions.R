@@ -1511,8 +1511,8 @@ for(q in 1:length(quebras)){
     
     est_modelo_impacto<-est_modelo_impacto[c("lhs", "label_lhs", "op", "rhs", "label_rhs","std.all","T2B_result")]
     est_modelo_impacto$T2B_result<-as.numeric(as.character(est_modelo_impacto$T2B_result))
-  }
-}
+ # }
+#}
 ################################################################################################################################################################################################################
 ### Exportar para um excel
 ################################################################################################################################################################################################################
@@ -1629,8 +1629,8 @@ writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1,
 saveWorkbook(exc)
 
 
-#}
-#}
+  }
+}
 
 Fim_Sintaxe_SEM<-Sys.time()
 tempo_total<-Fim_Sintaxe_SEM-Inicio_Sintaxe_SEM
