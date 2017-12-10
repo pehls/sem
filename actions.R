@@ -99,7 +99,7 @@ imprimirTempoPonderacao <- function(tempo_ponderar_inicio, msg) {
   print(duracao_ponderacao)
   tempos2$time[indiceTempos2] <- duracao_ponderacao
   tempos2$message[indiceTempos2] <- msg
-  tempos2$mem_size[indiceTempos2] <- memory.size()
+  tempos2$mem_size[indiceTempos2] <- gc()
   indiceTempos2 <- indiceTempos2 + 1
   return (tempos2)
 }
@@ -1612,7 +1612,7 @@ drop_upload(fileName)
 }
 
 Fim_Sintaxe_SEM<-Sys.time()
-tempo_total<-Fim_Sintaxe_SEM-Inicio_Sintaxe_SEM
+tempo_total<-Fim_Sintaxe_SEM - TempoTotal
 Fim_Sintaxe_SEM - TempoTotal
 tempos2 <- imprimirTempoPonderacao(tempo_total, "Tempo total: ")
 indiceTempos2 <- indiceTempos2 +1
