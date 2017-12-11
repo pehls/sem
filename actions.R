@@ -1,3 +1,4 @@
+
 install.packages("lavaan")
 
 install.packages("foreign")
@@ -34,7 +35,7 @@ library(RCurl)
 # Diretorio de onde baixar o banco de dados
 setwd("/home/gabrielpehls/sem")
 
-##mem limit removido
+#memory.limit(6384)
 ########################################################################################
 ########################------  Funções utilizadas  ------##############################
 ########################################################################################
@@ -111,9 +112,9 @@ varExcluidas <- function(varargs) {
   return(variaveis_do_modelo)
 }
 ########################################################################################
-###| Complex sampling analysis of SEM models		|###################################
-###| Daniel Oberski, 2015-11-03						|###################################
-###| Updated by Pehls, 2017-12-08					|###################################
+###| Complex sampling analysis of SEM models--------|###################################
+###| Daniel Oberski, 2015-11-03---------------------|###################################
+###| Updated by Pehls, 2017-12-08-------------------|###################################
 ########################################################################################
 lavaan.survey <- 
   function(lavaan.fit, survey.design, 
