@@ -4,7 +4,7 @@
 # GCP Config 
 
 ## Machine type 
-#### n1-highmem-8 (8 vCPUs (analyzing the needs/quantities), 52 GB de memória),
+#### n1-highmem-4 (4 vCPUs, 26 GB de memória),
 #### ssd 50 gb
 ## CPU Platform
 #### Intel Broadwell
