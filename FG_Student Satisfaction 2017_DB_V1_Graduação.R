@@ -101,7 +101,6 @@ imprimirTempoPonderacao <- function(tempo_ponderar_inicio, msg) {
   print(duracao_ponderacao)
   tempos2$time[indiceTempos2] <- duracao_ponderacao
   tempos2$message[indiceTempos2] <- msg
-  tempos2$mem_size[indiceTempos2] <- gc()
   indiceTempos2 <- indiceTempos2 + 1
   return (tempos2)
 }
@@ -371,7 +370,7 @@ export<-"/home/gabrielpehls/sem/outputs"
 
 ##   quais quebras usar
 
-quebras<-c("VERTICAL", "CAMPUS", "DEGREE", "INGRESSO","Finished")
+quebras<-c("Finished", "CAMPUS", "DEGREE", "INGRESSO","VERTICAL")
 
 
 ### modelo descrito completo
