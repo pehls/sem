@@ -50,6 +50,8 @@ dl_from_dropbox <- function(x, key) {
   message(noquote(paste(x, "read into", getwd())))
 }
 dl_from_dropbox("UnP_teste_final_EquacoesEstruturais.sav","otyk42fivu4vsqz")
+##################---- Arquivos para autorizar upload no dropbox -----##################
+##############-----Devem ser atualizados para outra conta do dropbox------##############
 dl_from_dropbox(".gitignore","1sth2qgodt0k8v6")
 dl_from_dropbox(".httr-oauth","1j0froxvx83quxd")
 dl_from_dropbox("token.rds","169we6hudfy83u8")
@@ -103,7 +105,6 @@ imprimirTempoPonderacao <- function(tempo_ponderar_inicio, msg) {
   indiceTempos2 <- indiceTempos2 + 1
   return (tempos2)
 }
-
 varExcluidas <- function(varargs) {
   var_nao_queremos_inputar<-varargs
   variaveis_do_modelo<-gsub(var_nao_queremos_inputar
