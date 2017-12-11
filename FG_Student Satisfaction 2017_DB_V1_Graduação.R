@@ -486,8 +486,8 @@ for(j in 1:length(indices_colunas)){
 #######################################################
 
 indices_colunas<-NULL
-indices_colunas<-which(colnames(data_raw) %in% variaveis_do_modelo)
-
+# indices_colunas<-which(colnames(data_raw) %in% variaveis_do_modelo)
+indices_colunas<-variaveis_do_modelo
 
 
 ## Finalmente, vamos adicionar a media nos NA's das variaveis
@@ -500,44 +500,94 @@ data_raw$concatenar<-do.call(paste, data_raw[,quebras])
 
 # percorrer cada individuo, em cada variavel, ver se esta nulo e colocar
 # a media da variavel conforme a vertical que pertence
-svy.df<-svydesign(id=~ResponseId, 
-                  weights=~Weight_BRZ,
-                  data=data_raw)
-
 
 for(k in 1:length(indices_colunas)){
-  
+
   j<-indices_colunas[k]
   
-  medias_aux<-svyby(~eval(as.symbol(colnames(data_raw)[j])),
-                    ~concatenar,
-                    svy.df,
-                    svymean, 
-                    na.rm =T)
+  teste_nan<-NULL
   
+  teste_nan<-aggregate(data_raw[,j],
+            list(data_raw$concatenar), 
+            mean,
+            na.rm=T)
+  
+  
+  
+  svy.df<-NULL
+  svy.df<-svydesign(id=~ResponseId, 
+                    weights=~Weight_BRZ,
+                    data=data_raw)
+  
+  
+  media_geal_aux<-NULL
+  media_geal_aux<-svymean(~data_raw[,j], 
+                          design=svy.df,
+                          na.rm=T,
+                          deff=T)[1]
+  
+  teste_nan$x[is.nan(teste_nan$x)]<-media_geal_aux
+  
+  # 
+  # 
+  # if(sum(is.nan(teste_nan$x))>0){
+  #   
+  #           concat_NoN_NaN<-NULL
+  #           concat_NoN_NaN<-teste_nan[complete.cases(teste_nan$x),1]
+  #           data_raw_aux<-NULL
+  #           data_raw_aux<-data_raw[data_raw$concatenar %in% concat_NoN_NaN,]
+  #           
+  #           svy.df<-svydesign(id=~ResponseId, 
+  #                             weights=~Weight_BRZ,
+  #                             data=data_raw_aux)
+  #           medias_aux<-NULL
+  #           medias_aux<-svyby(~eval(as.symbol(j)),
+  #                             ~concatenar,
+  #                             svy.df,
+  #                             svymean, 
+  #                             na.rm =T)  
+  #           
+  # }else{
+  #   
+  #   svy.df<-svydesign(id=~ResponseId, 
+  #                     weights=~Weight_BRZ,
+  #                     data=data_raw)
+  #   medias_aux<-NULL
+  #   medias_aux<-svyby(~eval(as.symbol(j)),
+  #                     ~concatenar,
+  #                     svy.df,
+  #                     svymean, 
+  #                     na.rm =T)  
+  # }
+            
   
   for(i in 1:nrow(data_raw)){
     
     vertical_aux<-data_raw$concatenar[i]
     
     if(is.na(data_raw[i,j])){
-      data_aux<-NULL
-      
+      # data_aux<-NULL
+      # data_aux<-data_raw[data_raw$concatenar==vertical_aux,]
+      # 
       ### se toda a variavel estiver vazia na vertical,
       ### entao temos que imputar a media geral
       
-      if(sum(is.na(data_raw[,j]))==length(data_raw[,j])){
-        
-        data_raw[i,j]<- svymean(data_raw[,j], design=svy.df, na.rm=T)[1]
-      }else{
-        ### caso contrario, vamos botar a media da variavel da vertical
-        
-        
-        data_raw[i,j]<-medias_aux[vertical_aux,2]
-      }
+      data_raw[i,j]<-teste_nan$x[teste_nan$Group.1==vertical_aux]
+      
+      # if(sum(is.na(data_raw[data_raw$concatenar==vertical_aux,j]))==length(data_aux[,j])){
+      #   
+      #   svy.df<-NULL
+      #   svy.df<-svydesign(id=~ResponseId, 
+      #                     weights=~Weight_BRZ,
+      #                     data=data_raw)
+      #   
+      #   data_raw[i,j]<- svymean(data_raw[,j], design=svy.df, na.rm=T)[1]
+      #   
     }
   }
 }
+
+
 
 # Atualizar a ponderacao os resultados
 svy.df<-svydesign(id=~ResponseId, 
