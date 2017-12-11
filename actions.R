@@ -566,6 +566,7 @@ for(q in 1:length(quebras)){
     ## Nome do nivel da quebra
     nivel_label<-levels(as.factor(data_value_labels[,quebras[q]]))[lev]
     
+    if (is.na(nivel)) break
     
     data<-NULL
     data<-data_raw[data_raw[,quebra]==nivel,]
