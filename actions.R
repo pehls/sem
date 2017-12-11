@@ -1,4 +1,3 @@
-
 install.packages("lavaan")
 
 install.packages("foreign")
@@ -35,7 +34,7 @@ library(RCurl)
 # Diretorio de onde baixar o banco de dados
 setwd("/home/gabrielpehls/sem")
 
-#memory.limit(6384)
+##mem limit removido
 ########################################################################################
 ########################------  Funções utilizadas  ------##############################
 ########################################################################################
