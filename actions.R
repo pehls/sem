@@ -1518,7 +1518,7 @@ writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
 saveWorkbook(exc)
 
 ### Analise Fatorial Confirmatoria Diagnostico Stepwise
-fileGraph <- 'graph.png'
+fileGraph <- paste(nivel_label,'graph.png',sep="_")
 png(filename = fileGraph, width = 800, height = 600)
 par(mfrow=c(2,3))
 plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
