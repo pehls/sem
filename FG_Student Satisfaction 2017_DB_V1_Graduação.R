@@ -409,7 +409,7 @@ segunda_ordem<-c("infra")
 
 # Ponderar os resultados
 svy.df<-svydesign(id=~ResponseId, 
-                  weights=~WEIGHT,
+                  weights=~Weight_BRZ,
                   data=data_raw)
 
 #pegar as variable labels
@@ -501,7 +501,7 @@ data_raw$concatenar<-do.call(paste, data_raw[,quebras])
 # percorrer cada individuo, em cada variavel, ver se esta nulo e colocar
 # a media da variavel conforme a vertical que pertence
 svy.df<-svydesign(id=~ResponseId, 
-                  weights=~WEIGHT,
+                  weights=~Weight_BRZ,
                   data=data_raw)
 
 
@@ -541,7 +541,7 @@ for(k in 1:length(indices_colunas)){
 
 # Atualizar a ponderacao os resultados
 svy.df<-svydesign(id=~ResponseId, 
-                  weights=~WEIGHT,
+                  weights=~Weight_BRZ,
                   data=data_raw)
 
 ###################################################################################################
@@ -573,14 +573,14 @@ for(q in 1:length(quebras)){
     data<-NULL
     data<-data_raw[data_raw[,quebra]==nivel,]
     data<-data[,c(var_dep_eq, "ResponseId",
-                  variaveis_do_modelo,"WEIGHT")]
+                  variaveis_do_modelo,"Weight_BRZ")]
     
     n_obs<-nrow(data)
     print(nivel_label)
     
     svy.df<-NULL
     svy.df<-svydesign(id=~ResponseId, 
-                      weights=~WEIGHT,
+                      weights=~Weight_BRZ,
                       data=data)
     
     
@@ -591,7 +591,7 @@ for(q in 1:length(quebras)){
     # ### banco auxiliar para top 2 box
     # 
     data_aux_top<-data_raw[data_raw[,quebra]==nivel,] %>%
-      select(indices_colunas, "WEIGHT", "ResponseId", quebras)
+      select(indices_colunas, "Weight_BRZ", "ResponseId", quebras)
     # executado na linha 136
     
     
@@ -606,7 +606,7 @@ for(q in 1:length(quebras)){
     # Ponderar os resultados
     svy.df.auxtop<-NULL
     svy.df.auxtop<-svydesign(id=~ResponseId, 
-                             weights=~WEIGHT,
+                             weights=~Weight_BRZ,
                              data=data_aux_top)
     df.top2box<-data.frame()
     
