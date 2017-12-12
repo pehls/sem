@@ -52,7 +52,6 @@ dl_from_dropbox <- function(x, key) {
 dl_from_dropbox("FG_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav","y64l07jmgsz19qp")
 ##################---- Arquivos para autorizar upload no dropbox -----##################
 ##############-----Devem ser atualizados para outra conta do dropbox------##############
-dl_from_dropbox(".gitignore","1sth2qgodt0k8v6")
 dl_from_dropbox(".httr-oauth","1j0froxvx83quxd")
 dl_from_dropbox("token.rds","169we6hudfy83u8")
 token <- readRDS("token.rds")
