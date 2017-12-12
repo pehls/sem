@@ -1663,7 +1663,8 @@ drop_upload(fileName)
 
   }
 }
-
+save.image("FG.RData")
+history("FG.Rhistory")
 Fim_Sintaxe_SEM<-Sys.time()
 tempo_total<-Fim_Sintaxe_SEM - TempoTotal
 Fim_Sintaxe_SEM - TempoTotal
