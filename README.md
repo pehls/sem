@@ -5,7 +5,7 @@
 
 ## Machine type 
 #### n1-highmem-4 (4 vCPUs, 26 GB de memória),
-#### ssd 50 gb
+#### ssd 30 gb
 ## CPU Platform
 #### Intel Broadwell
 ## Zone
