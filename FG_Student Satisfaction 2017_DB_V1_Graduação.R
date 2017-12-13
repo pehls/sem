@@ -22,6 +22,8 @@ install.packages("httpuv")
 
 install.packages("matrixcalc")
 
+install.packages("reshape2")
+
 library(httpuv)
 library(lavaan)
 library(foreign)
@@ -34,7 +36,7 @@ library(doParallel)
 library(rdrop2)
 library(RCurl)
 library(matrixcalc)
-
+library(reshape2)
 
 # Diretorio de onde baixar o banco de dados
 setwd("/home/gabrielpehls/sem")
@@ -608,13 +610,13 @@ svy.df<-svydesign(id=~ResponseId,
 
 for(q in 1:length(quebras)){
   ## quebra 'q'
-  
+  # q<-1
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
   
   
   for(lev in 1:length(niv)){  
-    
+     # lev<-1
     ##  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra
@@ -696,7 +698,8 @@ for(q in 1:length(quebras)){
     ### VAMOS TESTAR SE A MATRIZ DE COVARIANCIA EH DEFINIDA POSITIVA #######
     
     
-    teste_covariancia<-is.positive.definite(cov(data[,indices_colunas]))
+    teste_covariancia<-(is.positive.definite(cov(data[,indices_colunas])) 
+                        & n_obs>length(indices_colunas))
     
     #### Se for FALSE,  entao a matriz de covariancia nao eh definida, positiva.
     #### E a modelagem de equacoes estruturais nao vai rodar.
@@ -721,6 +724,7 @@ for(q in 1:length(quebras)){
       
       ## listar as variaveis com a maior correlacao
       max_correl<-NULL
+      correl_tirar_var_aux<-melt(correl_tirar_var)
       max_correl<-correl_tirar_var_aux[order(-correl_tirar_var_aux$value),][1,]
       
       t2b_var1<-NULL
@@ -740,25 +744,136 @@ for(q in 1:length(quebras)){
       }else{
         
         
-        t2b_var2$retirar<-ifelse(t2b_var2$T2B_result.x>t2b_var2$T2B_result.y, 
-                                 t2b_var2$retirar<-t2b_var2$Var2,
-                                 t2b_var2$retirar<-t2b_var2$Var1)
+        t2b_var2$retirar<-ifelse(as.numeric(as.character(t2b_var2$T2B_result.x))>as.numeric(as.character(t2b_var2$T2B_result.y)), 
+                                 t2b_var2$retirar<-as.character(t2b_var2$Var2),
+                                 t2b_var2$retirar<-as.character(t2b_var2$Var1))
         
         
         
       }
       ## coloca num vetor quais variaveis ficaram de fora
-      variaveis_PROBLEMA_MATRIZ[ind]<-indices_colunas[eigen_tirar_var]
-      ## tira a variavel da matriz para ver se ela se torna positiva definida
-      indices_colunas<-indices_colunas[-eigen_tirar_var]
+      retirar_var_aux<-NULL
+      retirar_var_aux<-t2b_var2$retirar
+      variaveis_PROBLEMA_MATRIZ[ind]<-retirar_var_aux
+      
+      coord_retirar<-NULL
+      coord_retirar<-which(indices_colunas %in% retirar_var_aux)
+      indices_colunas<-indices_colunas[-coord_retirar]
+      
+      
+      
       ## testa se eh positiva definida
-      teste_covariancia<-is.positive.definite(cov(data[,indices_colunas]))
+      teste_covariancia<-(is.positive.definite(cov(data[,indices_colunas])) 
+                          & n_obs>length(indices_colunas))
       
       if(teste_covariancia==F){
         ind<-ind+1
       }else{
         ind<-ind
       }
+    }
+    
+    
+    
+    ###############################################
+    
+    ## TIRAMOS AS VARIAVEIS QUE COM A MULTICOLINEARIDADE
+    
+    ## AFETAVAM NA MATRIZ.
+    
+    ##  AGORA PRECISAMOS TIRAR AS VARIAVEIS QUE SAIRAM DO MODELO INICIAL
+    ### ISSO SO VAI ACONTECER SE FORAM FEITAS ALTERACOES EM FUNCAO
+    ## DO TAMANHO DE AMOSTRA OU DE A MATRIZ NAO SER DEFINIDA POSITIVA
+    
+    if(ind>1){
+    
+                ## primeiro passo eh dividir os models latentes
+                
+                
+                
+                latent<-NULL
+                latent<-unlist(strsplit(HS.model,
+                                        split=c("\n")))
+                
+                latent<-grep("=~", latent, value=T)
+                
+                # agora vamos dividir entre constuctos e 'preditores'
+                
+                latentes<-list()
+                nome_constructo<-c()
+                
+                for(i in 1:length(latent)){
+                  latentes[i]<-strsplit(latent[i],
+                                        split=c("=~"))
+                  nome_constructo[i]<-trimws(latentes[[i]][1])
+                  nome_constructo<-trimws(nome_constructo)
+                }
+                
+                print("dividir entre constuctos e preditores:ok")
+                # separar os preditores dentro de cada constructo
+                
+                pred<-list()
+                
+                for(i in 1:length(latent)){
+                  
+                  ## vamos dividir em cada elemento da parte dos preditores 
+                  
+                  pred[i]<-strsplit(latentes[[i]][2],
+                                    split=c("\\+"))
+                  
+                }
+                varia<-(pred)
+                ## colocar o nome do constructo em cada objeto
+                names(varia)<-trimws(nome_constructo)
+              
+                ### VAMOS TIRAR AQUELAS VARIAVEIS QUE FORAM RETIRADAS
+                ### NO TESTE DE MATRIZ DE COVARIANCIAS
+                variaveis_PROBLEMA_MATRIZ_aux<-NULL
+                k<-NULL
+                var_aux<-NULL
+                res<-NULL
+                aux<-NULL
+              
+                for(i in 1:length(variaveis_PROBLEMA_MATRIZ)){
+                  
+                  variaveis_PROBLEMA_MATRIZ_aux<-variaveis_PROBLEMA_MATRIZ[i]
+                  res <- lapply(varia, function(ch) grep(variaveis_PROBLEMA_MATRIZ_aux, ch))
+                  aux<-sapply(res, function(x) length(x) > 0)
+                  
+                  if(sum(aux)>0){
+                    
+                    var_aux<-names(which(aux==T))
+                    k<-grep(variaveis_PROBLEMA_MATRIZ_aux, varia[[var_aux]])
+                    varia[[var_aux]][k]<-NA
+                    varia[[var_aux]]<-varia[[var_aux]][complete.cases(varia[[var_aux]])]
+                  
+                  }
+                  variaveis_PROBLEMA_MATRIZ_aux<-NULL
+                  k<-NULL
+                  var_aux<-NULL
+                  res<-NULL
+                  aux<-NULL
+                }
+                
+                
+                HS.model<-NULL
+                
+                for(i in 1:length(varia)){
+                  
+                  va_lt<-NULL
+                  
+                  va_lt[i]<-paste(names(varia)[i],"=~")
+                  
+                  modelo<-NULL
+                  var_lat<-(paste(unlist(varia[[i]]),"+"))
+                  modelo<-paste(var_lat, collapse = " ")
+                  modelo<-substr(modelo, 1, nchar(modelo)-2)
+                  modelo<-paste(va_lt[i], modelo,"\n")
+                  HS.model<-paste(HS.model, modelo)
+                  
+                }
+                
+                
     }
     
     
