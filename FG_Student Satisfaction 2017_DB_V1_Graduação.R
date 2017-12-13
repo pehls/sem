@@ -1,4 +1,3 @@
-
 install.packages("lavaan")
 
 install.packages("foreign")
@@ -57,7 +56,6 @@ dl_from_dropbox <- function(x, key) {
 dl_from_dropbox("FG_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav","y64l07jmgsz19qp")
 ##################---- Arquivos para autorizar upload no dropbox -----##################
 ##############-----Devem ser atualizados para outra conta do dropbox------##############
-dl_from_dropbox(".gitignore","1sth2qgodt0k8v6")
 dl_from_dropbox(".httr-oauth","1j0froxvx83quxd")
 dl_from_dropbox("token.rds","169we6hudfy83u8")
 token <- readRDS("token.rds")
@@ -70,7 +68,7 @@ getDifference <- function (difference) {
   formulas <- unlist(strsplit(modelo_name[[melhor]],
                               split=c("\n")))
   parametros <- NULL 
-  for (i in 1:length(formulas)) { 
+  for (i in 1:length(formulas)) {
     
     parametros[i] <- strsplit(formulas[i], split = c("=~"))[[1]][2]
     
@@ -106,7 +104,6 @@ imprimirTempoPonderacao <- function(tempo_ponderar_inicio, msg) {
   print(duracao_ponderacao)
   tempos2$time[indiceTempos2] <- duracao_ponderacao
   tempos2$message[indiceTempos2] <- msg
-  tempos2$mem_size[indiceTempos2] <- gc()
   indiceTempos2 <- indiceTempos2 + 1
   return (tempos2)
 }
@@ -203,7 +200,7 @@ lavaan.survey <-
         attr(sample.cov.g, "var") <- NULL
         tmp  <- as.vector(sample.mean.g)
         names(tmp) <- names(sample.mean.g)
-        sample.mean.g <- tmp 
+        sample.mean.g <- tmp
         print("inicializando list gamma")
         list(Gamma.g=Gamma.g, sample.cov.g=sample.cov.g, sample.mean.g=sample.mean.g)
       }
@@ -467,6 +464,7 @@ variaveis_do_modelo<-Reduce(intersect, list(lista_variaveis,colnames(data_raw)))
 ## transformar as vaiaveis usadas em numericas
 indices_colunas<-NULL
 indices_colunas<-which(colnames(data_raw) %in% variaveis_do_modelo)
+
 for(j in 1:length(indices_colunas)){
   j<-indices_colunas[i]
   data_raw[,j] <-  as.numeric(as.character(data_raw[,j]))
@@ -610,6 +608,7 @@ svy.df<-svydesign(id=~ResponseId,
 
 for(q in 1:length(quebras)){
   ## quebra 'q'
+  
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
   
@@ -712,14 +711,49 @@ for(q in 1:length(quebras)){
     
     while(teste_covariancia==F){
       
-      ## vamos tirar a variavel com menor eigen
-      eigen_tirar_var<-which.min(eigen(cov(data[,indices_colunas]), only.values = T)$values)
+      ## um dos problemas associados com a matriz NAO DEFINIDA positiva eh a 
+      ## multicolinearidade. vamos analisar os casos em que ha uma correlacao muito forte
+      
+      correl_tirar_var<-cor(data[,indices_colunas])
+      
+      ## colocar zeros na diagonal da matriz
+      diag(correl_tirar_var)<-0
+      
+      ## listar as variaveis com a maior correlacao
+      max_correl<-NULL
+      max_correl<-correl_tirar_var_aux[order(-correl_tirar_var_aux$value),][1,]
+      
+      t2b_var1<-NULL
+      t2b_var2<-NULL
+      ### vamos tirar aquela variavel que tem o menor top2box dai
+      t2b_var1<-merge(max_correl, df.top2box, by.x=c("Var1"), by.y=c("variaveis"))
+      t2b_var2<-merge(t2b_var1, df.top2box, by.x=c("Var2"), by.y=c("variaveis"))
+      
+      
+      if(t2b_var2$T2B_result.x==t2b_var2$T2B_result.y){
+        
+        sorteio_aux<-NULL
+        set.seed(1234)
+        sorteio_aux<-sample(c(1,2),1)
+        t2b_var2$retirar<-as.character(t2b_var2[1,sorteio_aux])
+        
+      }else{
+        
+        
+        t2b_var2$retirar<-ifelse(t2b_var2$T2B_result.x>t2b_var2$T2B_result.y, 
+                                 t2b_var2$retirar<-t2b_var2$Var2,
+                                 t2b_var2$retirar<-t2b_var2$Var1)
+        
+        
+        
+      }
       ## coloca num vetor quais variaveis ficaram de fora
       variaveis_PROBLEMA_MATRIZ[ind]<-indices_colunas[eigen_tirar_var]
       ## tira a variavel da matriz para ver se ela se torna positiva definida
       indices_colunas<-indices_colunas[-eigen_tirar_var]
       ## testa se eh positiva definida
       teste_covariancia<-is.positive.definite(cov(data[,indices_colunas]))
+      
       if(teste_covariancia==F){
         ind<-ind+1
       }else{
@@ -1704,6 +1738,9 @@ for(q in 1:length(quebras)){
     
   }
 }
+
+save.image("FG.RData")
+history("FG.Rhistory")
 
 Fim_Sintaxe_SEM<-Sys.time()
 tempo_total<-Fim_Sintaxe_SEM - TempoTotal
