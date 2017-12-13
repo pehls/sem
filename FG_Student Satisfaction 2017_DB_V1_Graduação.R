@@ -610,13 +610,13 @@ svy.df<-svydesign(id=~ResponseId,
 
 for(q in 1:length(quebras)){
   ## quebra 'q'
-  # q<-1
+  #q<-1
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
   
   
   for(lev in 1:length(niv)){  
-     # lev<-1
+    #  lev<-1
     ###  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra
@@ -848,7 +848,7 @@ for(q in 1:length(quebras)){
                     varia[[var_aux]]<-varia[[var_aux]][complete.cases(varia[[var_aux]])]
                   
                   }
-                  variaveis_PROBLEMA_MATRIZ_aux<-NULL
+                 # variaveis_PROBLEMA_MATRIZ_aux<-NULL
                   k<-NULL
                   var_aux<-NULL
                   res<-NULL
@@ -1837,10 +1837,11 @@ for(q in 1:length(quebras)){
     ## Diferenca entre variaveis entrada/saida
     
     difference <- getDifference(difference)
-    difference <- cbind(difference, variaveis_PROBLEMA_MATRIZ)
-    difference2<-data.frame(codigo=difference)
+    difference2 <- unique(data.frame(codigo = c(difference, variaveis_PROBLEMA_MATRIZ)))
     var_labels2<-var_labels
     var_labels2$codigo<-as.character(var_labels2$codigo)
+    
+    
     
     var_fora<-merge(difference2, var_labels2, all.x = T)
     colnames(var_fora)[1]<-("VariaveisDeFora")
