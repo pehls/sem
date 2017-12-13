@@ -617,7 +617,7 @@ for(q in 1:length(quebras)){
   
   for(lev in 1:length(niv)){  
      # lev<-1
-    ##  nivel 'niv' da quebra 'q'
+    ###  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra
     nivel_label<-levels(as.factor(data_value_labels[,quebras[q]]))[lev]
@@ -1837,6 +1837,7 @@ for(q in 1:length(quebras)){
     ## Diferenca entre variaveis entrada/saida
     
     difference <- getDifference(difference)
+    difference <- cbind(difference, variaveis_PROBLEMA_MATRIZ)
     difference2<-data.frame(codigo=difference)
     var_labels2<-var_labels
     var_labels2$codigo<-as.character(var_labels2$codigo)
