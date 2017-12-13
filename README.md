@@ -22,3 +22,5 @@
 #### sudo apt-get install libgsl0ldbl
 #### sudo apt-get install gsl-bin libgsl0-de
 ## To open R, simply write "R"
+## if process was killed sometime, open  /var/log/kern.log to examinate it;
+## or use dmesg to examinate the kernel log, too.
