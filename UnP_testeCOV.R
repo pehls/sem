@@ -587,6 +587,10 @@ for(q in 1:length(quebras)){
     
     
     n_obs<-nrow(data)
+    if (n_obs < 50) {
+      print(paste(paste(nivel_label, " Nobs="),n_obs))
+      break
+    }
     print(nivel_label)
     
     svy.df<-NULL
