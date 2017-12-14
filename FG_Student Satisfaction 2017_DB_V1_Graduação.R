@@ -923,13 +923,16 @@ for(q in 1:length(quebras)){
     valid_discr<-c()
     bic<-c()
     
-    razao_chisq[1]<-fitMeasures(modelo_partial[[1]],"chisq")/fitMeasures(modelo_partial[[1]],"df")
-    aic[1]<-fitMeasures(modelo_partial[[1]],"aic")
-    rmsea[1]<-fitMeasures(modelo_partial[[1]],"rmsea")
-    cfi[1]<-fitMeasures(modelo_partial[[1]],"cfi")
+    fit_modelo_partial <- NULL
+    fit_modelo_partial <- fitMeasures(modelo_partial[[1]])
+    
+    razao_chisq[1]<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
+    aic[1]<-fit_modelo_partial["aic"]
+    rmsea[1]<-fit_modelo_partial["rmsea"]
+    cfi[1]<-fit_modelo_partial["cfi"]
     alfa_cronbach[1]<-reliability(modelo_partial[[1]])[1,ncol(reliability(modelo_partial[[1]]))]
     ave_min[1]<-min((reliability(modelo_partial[[1]])[5,]))
-    bic[1]<-fitMeasures(modelo_partial[[1]],"bic")
+    bic[1]<-fit_modelo_partial["bic"]
     # Validade discriminante
     # Testada atraves da inter-correlacao entre os constructos
     # indices acima de 0.9 podem indicar multicolinearidade entre
@@ -1000,11 +1003,11 @@ for(q in 1:length(quebras)){
     ## Outro criterio bastante utilizado eh o de chisq/df
     ## Um valor abaixo de 5 jah eh considerado razoavel.
     
-    chisq_df<-fitMeasures(modelo_partial[[1]], "chisq")/fitMeasures(modelo_partial[[1]], "df")
+    chisq_df<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
     
     
     
-    if( fitMeasures(modelo_partial[[1]], "rmsea.ci.upper")<0.08 & fitMeasures(modelo_partial[[1]], "srmr")<0.08 & fitMeasures(modelo_partial[[1]], "cfi")>0.8 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5){
+    if( fit_modelo_partial["rmsea.ci.upper"]<0.08 & fit_modelo_partial["srmr"]<0.08 & fit_modelo_partial["cfi"]>0.8 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5){
       rodar<-0
     }else{
       rodar<-1
@@ -1306,8 +1309,9 @@ for(q in 1:length(quebras)){
       # duracao_ponderacao<-tempo_ponderar_final-tempo_ponderar_inicio
       # print("A duracao da ponderacao do modelo parcial "+z+" e "+duracao_ponderacao)
       # 
-      print(fitMeasures(modelo_partial[[z]], "bic"))
       bic[z]<-fitMeasures(modelo_partial[[z]], "bic")
+      print(bic[z])
+      
       #z<-z+1  
       #modelo_partial[[z]]<-cfa_GSP
       modelo_name[[z]]<-modelofinal
@@ -1334,8 +1338,9 @@ for(q in 1:length(quebras)){
       chisq_df<-NULL
       estimativas_pad<-parameterEstimates(modelo_partial[[z]],standardized = T)[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       est_pad_aux<-sum(estimativas_pad$std.all[estimativas_pad$op=="=~"]<0.25, na.rm=T)
-      
-      chisq_df<-fitMeasures(modelo_partial[[z]], "chisq")/fitMeasures(modelo_partial[[z]], "df")
+      fit_modelo_partial <- NULL
+      fit_modelo_partial <- fitMeasures(modelo_partial[[z]])
+      chisq_df<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
       fit<-NULL
       # fit<-cfa_GSP
       
@@ -1346,7 +1351,7 @@ for(q in 1:length(quebras)){
         parar<-0
       }
       
-      if( (fitMeasures(modelo_partial[[z]], "rmsea.ci.upper")<0.08 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5) |  (z>30 | parar==1) ){
+      if( (fit_modelo_partial["rmsea.ci.upper"]<0.08 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5) |  (z>30 | parar==1) ){
         rodar<-0
       }else{
         rodar<-1
@@ -1361,11 +1366,13 @@ for(q in 1:length(quebras)){
     print("saiu do while da CFA")
     if(z>1){
       for(i in 2:(z)){
+        fit_modelo_partial<- NULL
+        fit_modelo_partial<-fitMeasures(modelo_partial[[i]])
         alfa_cronbach[i]<-reliability(modelo_partial[[i]])[1,ncol(reliability(modelo_partial[[i]]))]
-        razao_chisq[i]<-fitMeasures(modelo_partial[[i]],"chisq")/fitMeasures(modelo_partial[[i]],"df")
-        aic[i]<-fitMeasures(modelo_partial[[i]],"aic")
-        rmsea[i]<-fitMeasures(modelo_partial[[i]],"rmsea")
-        cfi[i]<-fitMeasures(modelo_partial[[i]],"cfi")
+        razao_chisq[i]<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
+        aic[i]<-fit_modelo_partial["aic"]
+        rmsea[i]<-fit_modelo_partial["rmsea"]
+        cfi[i]<-fit_modelo_partial["cfi"]
         ave_min[i]<-min(reliability(modelo_partial[[i]])[5,])
         ## matriz de validade discriminante
         mat_validDis<-inspect(modelo_partial[[i]], "cor.lv")
