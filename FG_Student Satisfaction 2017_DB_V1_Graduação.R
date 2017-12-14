@@ -1021,7 +1021,7 @@ for(q in 1:length(quebras)){
     modelo_name<-list()
     
     # modelo_partial[[1]]<-fit
-    modelo_name[[1]]<-HS.model
+    modelo_name[[z]]<-HS.model
     
     print("vai entrar no while da CFA")
     
@@ -1083,7 +1083,7 @@ for(q in 1:length(quebras)){
       
       # tirar as variaveis nao significativas
       print("")
-      estimativas<-parameterEstimates(modelo_partial[[1]])[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas<-parameterEstimates(modelo_partial[[z]])[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       est_aux<-NULL
       est_aux<-estimativas[(estimativas$pvalue>0.05
                             & estimativas$op=="=~")| (estimativas$est<0 &
@@ -1110,7 +1110,7 @@ for(q in 1:length(quebras)){
       print("retirar variaveis nao significativas:ok")
       estimativas2<-NULL
       #### Retirar variaveis cuja padronizacao for menor que 0.25
-      estimativas2<-parameterEstimates(modelo_partial[[1]], standardized = T)[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas2<-parameterEstimates(modelo_partial[[z]], standardized = T)[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       
       est_aux2<-estimativas2[(estimativas2$std.lv<0.25
                               & estimativas$op=="=~"),]
@@ -1132,7 +1132,7 @@ for(q in 1:length(quebras)){
       
       ## alteracoes para incluir variaveis em constructos
       MI<-NULL
-      MI<-modificationIndices(modelo_partial[[1]], sort. = T)
+      MI<-modificationIndices(modelo_partial[[z]], sort. = T)
       # adc_aux<-subset(MI, mi>100 & op=="=~" & epc>0)
       # adc_aux <- adc_aux[order(adc_aux[,'rhs'],-adc_aux[,'epc']),]
       # adc_aux <- adc_aux[!duplicated(adc_aux$rhs),]
@@ -1310,7 +1310,7 @@ for(q in 1:length(quebras)){
       
       
       estimativas<-NULL
-      estimativas<-parameterEstimates(modelo_partial[[z]], rsquare=T)[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas<-parameterEstimates(modelo_partial[[z]], rsquare=T)[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       # verificar se alguma estimativa eh nao significativa, ou menor que zero 
       est_aux<-NULL
       est_aux<-estimativas[(estimativas$pvalue>0.05
@@ -1328,7 +1328,7 @@ for(q in 1:length(quebras)){
       estimativas_pad<-NULL
       est_pad_aux<-NULL
       chisq_df<-NULL
-      estimativas_pad<-parameterEstimates(modelo_partial[[1]],standardized = T)[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas_pad<-parameterEstimates(modelo_partial[[z]],standardized = T)[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       est_pad_aux<-sum(estimativas_pad$std.all[estimativas_pad$op=="=~"]<0.25, na.rm=T)
       
       chisq_df<-fitMeasures(modelo_partial[[z]], "chisq")/fitMeasures(modelo_partial[[z]], "df")
