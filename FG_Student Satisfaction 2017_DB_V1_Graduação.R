@@ -1102,12 +1102,16 @@ for(q in 1:length(quebras)){
       i <- 1
       ###############################
       if (nrow(retirar)>0) {
-        registerDoParallel(cores = no_cores)
-        cl <- makeCluster(no_cores)
-        clusterExport(cl, "varia")
-        clusterExport(cl, "retirar")
-        varia <- parLapply(cl, 1:nrow(retirar), retirarVarPadMenor(i))
-        stopCluster(cl)
+        for(i in 1:nrow(retirar)) {
+          v_l_aux<-NULL
+          rhs_aux<-NULL
+          v_l_aux<-retirar[i,1]
+          rhs_aux<-retirar[i,2]
+          
+          k<-grep(rhs_aux, varia[[v_l_aux]])
+          varia[[v_l_aux]][k]<-NA
+          varia[[v_l_aux]]<-varia[[v_l_aux]][complete.cases(varia[[v_l_aux]])]
+        } 
       }else{
         retirar<-NULL
       }
@@ -1127,7 +1131,14 @@ for(q in 1:length(quebras)){
       ###############################
       if (nrow(retirar)>0) {
         for(i in 1:nrow(retirar)) {
-          retirarVarPadMenor(i)
+          v_l_aux<-NULL
+          rhs_aux<-NULL
+          v_l_aux<-retirar[i,1]
+          rhs_aux<-retirar[i,2]
+          
+          k<-grep(rhs_aux, varia[[v_l_aux]])
+          varia[[v_l_aux]][k]<-NA
+          varia[[v_l_aux]]<-varia[[v_l_aux]][complete.cases(varia[[v_l_aux]])]
         } 
       }else{
         retirar<-NULL
