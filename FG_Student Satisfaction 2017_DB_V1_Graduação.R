@@ -611,12 +611,13 @@ svy.df<-svydesign(id=~ResponseId,
 for(q in 1:length(quebras)){
   ## quebra 'q'
   #q<-1
+ 
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
   
   
   for(lev in 1:length(niv)){  
-    #  lev<-1
+    
     ###  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra
@@ -744,7 +745,7 @@ for(q in 1:length(quebras)){
       }else{
         
         
-        t2b_var2$retirar<-ifelse(as.numeric(as.character(t2b_var2$T2B_result.x))>as.numeric(as.character(t2b_var2$T2B_result.y)), 
+        t2b_var2$retirar<-ifelse(as.numeric(as.character(t2b_var2$T2B_result.x))<as.numeric(as.character(t2b_var2$T2B_result.y)), 
                                  t2b_var2$retirar<-as.character(t2b_var2$Var2),
                                  t2b_var2$retirar<-as.character(t2b_var2$Var1))
         
@@ -872,6 +873,7 @@ for(q in 1:length(quebras)){
                   HS.model<-paste(HS.model, modelo)
                   
                 }
+                va_lt<-NULL
                 
                 
     }
@@ -975,6 +977,8 @@ for(q in 1:length(quebras)){
     ### verificar se nao ha nenhuma variancia menor que zero
     var_aux<-NULL
     var_aux<-sum(estimativas$est[estimativas$op=="~~"]<0)
+    
+    
     ### verificar se tem alguma estimativa padronizada menor que 0.25 Std.all (cuja interpretacao eh igual aos loading da anlise fatorial confirmatoria)
     estimativas_pad<-NULL
     
@@ -1104,7 +1108,7 @@ for(q in 1:length(quebras)){
       ###############################
       
       print("retirar variaveis nao significativas:ok")
-      
+      estimativas2<-NULL
       #### Retirar variaveis cuja padronizacao for menor que 0.25
       estimativas2<-parameterEstimates(modelo_partial[[1]], standardized = T)[complete.cases(parameterEstimates(modelo_partial[[1]])),]
       
@@ -1835,15 +1839,16 @@ for(q in 1:length(quebras)){
     saveWorkbook(exc)
     
     ## Diferenca entre variaveis entrada/saida
-    
+    difference<-NULL
     difference <- getDifference(difference)
-    difference2 <- unique(data.frame(codigo = c(difference, variaveis_PROBLEMA_MATRIZ)))
+    difference2<-NULL
+    difference2 <-data.frame(codigo=unique(unlist(list(difference, variaveis_PROBLEMA_MATRIZ))))
+    difference2$codigo<-as.character(difference2$codigo)
     var_labels2<-var_labels
     var_labels2$codigo<-as.character(var_labels2$codigo)
     
     
-    
-    var_fora<-merge(difference2, var_labels2, all.x = T)
+    var_fora<-merge(difference2, var_labels2, all.x=T)
     colnames(var_fora)[1]<-("VariaveisDeFora")
     
     createSheet(exc,'VarFora')
