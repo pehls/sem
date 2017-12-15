@@ -611,7 +611,7 @@ svy.df<-svydesign(id=~ResponseId,
 for(q in 1:length(quebras)){
   ## quebra 'q'
   #q<-1
- 
+  
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
   
@@ -771,7 +771,7 @@ for(q in 1:length(quebras)){
       teste_covariancia<-(is.positive.definite(cov(data[,indices_colunas])) 
                           & n_obs>length(indices_colunas))
       
-      if(teste_covariancia==F){
+      if(teste_covariancia==F | length(variaveis_PROBLEMA_MATRIZ)>0){
         ind<-ind+1
       }else{
         ind<-ind
@@ -791,95 +791,95 @@ for(q in 1:length(quebras)){
     ## DO TAMANHO DE AMOSTRA OU DE A MATRIZ NAO SER DEFINIDA POSITIVA
     
     if(ind>1){
-    
-                ## primeiro passo eh dividir os models latentes
-                
-                
-                
-                latent<-NULL
-                latent<-unlist(strsplit(HS.model,
-                                        split=c("\n")))
-                
-                latent<-grep("=~", latent, value=T)
-                
-                # agora vamos dividir entre constuctos e 'preditores'
-                
-                latentes<-list()
-                nome_constructo<-c()
-                
-                for(i in 1:length(latent)){
-                  latentes[i]<-strsplit(latent[i],
-                                        split=c("=~"))
-                  nome_constructo[i]<-trimws(latentes[[i]][1])
-                  nome_constructo<-trimws(nome_constructo)
-                }
-                
-                print("dividir entre constuctos e preditores:ok")
-                # separar os preditores dentro de cada constructo
-                
-                pred<-list()
-                
-                for(i in 1:length(latent)){
-                  
-                  ## vamos dividir em cada elemento da parte dos preditores 
-                  
-                  pred[i]<-strsplit(latentes[[i]][2],
-                                    split=c("\\+"))
-                  
-                }
-                varia<-(pred)
-                ## colocar o nome do constructo em cada objeto
-                names(varia)<-trimws(nome_constructo)
-              
-                ### VAMOS TIRAR AQUELAS VARIAVEIS QUE FORAM RETIRADAS
-                ### NO TESTE DE MATRIZ DE COVARIANCIAS
-                variaveis_PROBLEMA_MATRIZ_aux<-NULL
-                k<-NULL
-                var_aux<-NULL
-                res<-NULL
-                aux<-NULL
-              
-                for(i in 1:length(variaveis_PROBLEMA_MATRIZ)){
-                  
-                  variaveis_PROBLEMA_MATRIZ_aux<-variaveis_PROBLEMA_MATRIZ[i]
-                  res <- lapply(varia, function(ch) grep(variaveis_PROBLEMA_MATRIZ_aux, ch))
-                  aux<-sapply(res, function(x) length(x) > 0)
-                  
-                  if(sum(aux)>0){
-                    
-                    var_aux<-names(which(aux==T))
-                    k<-grep(variaveis_PROBLEMA_MATRIZ_aux, varia[[var_aux]])
-                    varia[[var_aux]][k]<-NA
-                    varia[[var_aux]]<-varia[[var_aux]][complete.cases(varia[[var_aux]])]
-                  
-                  }
-                 # variaveis_PROBLEMA_MATRIZ_aux<-NULL
-                  k<-NULL
-                  var_aux<-NULL
-                  res<-NULL
-                  aux<-NULL
-                }
-                
-                
-                HS.model<-NULL
-                
-                for(i in 1:length(varia)){
-                  
-                  va_lt<-NULL
-                  
-                  va_lt[i]<-paste(names(varia)[i],"=~")
-                  
-                  modelo<-NULL
-                  var_lat<-(paste(unlist(varia[[i]]),"+"))
-                  modelo<-paste(var_lat, collapse = " ")
-                  modelo<-substr(modelo, 1, nchar(modelo)-2)
-                  modelo<-paste(va_lt[i], modelo,"\n")
-                  HS.model<-paste(HS.model, modelo)
-                  
-                }
-                va_lt<-NULL
-                
-                
+      
+      ## primeiro passo eh dividir os models latentes
+      
+      
+      
+      latent<-NULL
+      latent<-unlist(strsplit(HS.model,
+                              split=c("\n")))
+      
+      latent<-grep("=~", latent, value=T)
+      
+      # agora vamos dividir entre constuctos e 'preditores'
+      
+      latentes<-list()
+      nome_constructo<-c()
+      
+      for(i in 1:length(latent)){
+        latentes[i]<-strsplit(latent[i],
+                              split=c("=~"))
+        nome_constructo[i]<-trimws(latentes[[i]][1])
+        nome_constructo<-trimws(nome_constructo)
+      }
+      
+      print("dividir entre constuctos e preditores:ok")
+      # separar os preditores dentro de cada constructo
+      
+      pred<-list()
+      
+      for(i in 1:length(latent)){
+        
+        ## vamos dividir em cada elemento da parte dos preditores 
+        
+        pred[i]<-strsplit(latentes[[i]][2],
+                          split=c("\\+"))
+        
+      }
+      varia<-(pred)
+      ## colocar o nome do constructo em cada objeto
+      names(varia)<-trimws(nome_constructo)
+      
+      ### VAMOS TIRAR AQUELAS VARIAVEIS QUE FORAM RETIRADAS
+      ### NO TESTE DE MATRIZ DE COVARIANCIAS
+      variaveis_PROBLEMA_MATRIZ_aux<-NULL
+      k<-NULL
+      var_aux<-NULL
+      res<-NULL
+      aux<-NULL
+      
+      for(i in 1:length(variaveis_PROBLEMA_MATRIZ)){
+        
+        variaveis_PROBLEMA_MATRIZ_aux<-variaveis_PROBLEMA_MATRIZ[i]
+        res <- lapply(varia, function(ch) grep(variaveis_PROBLEMA_MATRIZ_aux, ch))
+        aux<-sapply(res, function(x) length(x) > 0)
+        
+        if(sum(aux)>0){
+          
+          var_aux<-names(which(aux==T))
+          k<-grep(variaveis_PROBLEMA_MATRIZ_aux, varia[[var_aux]])
+          varia[[var_aux]][k]<-NA
+          varia[[var_aux]]<-varia[[var_aux]][complete.cases(varia[[var_aux]])]
+          
+        }
+        # variaveis_PROBLEMA_MATRIZ_aux<-NULL
+        k<-NULL
+        var_aux<-NULL
+        res<-NULL
+        aux<-NULL
+      }
+      
+      
+      HS.model<-NULL
+      
+      for(i in 1:length(varia)){
+        
+        va_lt<-NULL
+        
+        va_lt[i]<-paste(names(varia)[i],"=~")
+        
+        modelo<-NULL
+        var_lat<-(paste(unlist(varia[[i]]),"+"))
+        modelo<-paste(var_lat, collapse = " ")
+        modelo<-substr(modelo, 1, nchar(modelo)-2)
+        modelo<-paste(va_lt[i], modelo,"\n")
+        HS.model<-paste(HS.model, modelo)
+        
+      }
+      va_lt<-NULL
+      
+      
     }
     
     
@@ -1864,13 +1864,15 @@ for(q in 1:length(quebras)){
     difference<-NULL
     difference <- getDifference(difference)
     difference2<-NULL
-    difference2 <-data.frame(codigo=unique(unlist(list(difference, variaveis_PROBLEMA_MATRIZ))))
-    difference2$codigo<-as.character(difference2$codigo)
+    # difference2 <-data.frame(codigo=unique(unlist(list(difference, variaveis_PROBLEMA_MATRIZ))))
+    # difference2$codigo<-as.character(difference2$codigo)
+    difference2<-as.data.frame(difference)
+    difference2$difference<-as.character(difference2$difference)
     var_labels2<-var_labels
     var_labels2$codigo<-as.character(var_labels2$codigo)
     
     
-    var_fora<-merge(difference2, var_labels2, all.x=T)
+    var_fora<-merge(difference2, var_labels2, all.x=T, by.x="difference", by.y = "codigo")
     colnames(var_fora)[1]<-("VariaveisDeFora")
     
     createSheet(exc,'VarFora')
