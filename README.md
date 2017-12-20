@@ -12,8 +12,8 @@
 #### southamerica-east1-c
 ## Debian Config on GCP
 #### sudo apt-get install r-base
-#### sudo apt-get install openjdk-8-jdk
-#### sudo apt-get install openjdk-8-source #opcional
+#### sudo apt-get install openjdk-9-jdk
+#### sudo apt-get install openjdk-9-source #opcional
 #### sudo apt-get install r-cran-rjava
 #### sudo apt-get install curl
 #### sudo apt-get install libssl-dev
