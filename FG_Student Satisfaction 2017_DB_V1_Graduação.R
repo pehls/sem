@@ -381,7 +381,7 @@ quebras<-c("VERTICAL", "CAMPUS", "DEGREE", "INGRESSO","Finished")
 ### modelo descrito completo
 
 model_completo <- '
-campus=~INF_01_INF_01_01+INF_01_INF_01_02+INF_01_INF_01_04+INF_01_INF_01_06+INF_01_INF_01_08+INF_01_INF_01_09+INF_01_INF_01_11+INF_01_INF_01_13+INF_01_INF_01_15+INF_01_INF_01_12
+campus=~INF_01_INF_01_01+INF_01_INF_01_02+INF_01_INF_01_04+INF_01_INF_01_06+INF_01_INF_01_08+INF_01_INF_01_09+INF_01_INF_01_11+INF_01_INF_01_13+INF_01_INF_01_15+INF_01_INF_01_12+INF_01_INF_01_19+INF_01_INF_01_21
 classroom=~INF_02_INF_02_03+INF_02_INF_02_04+INF_02_INF_02_05+INF_02_INF_02_06+INF_02_INF_02_07
 it_labs=~INF_03_INF_03_01+INF_03_INF_03_02+INF_03_INF_03_03+INF_03_INF_03_04+INF_03_INF_03_06
 specific_labs=~INF_04_INF_04_01+INF_04_INF_04_02+INF_04_INF_04_03+INF_04_INF_04_06
@@ -403,7 +403,7 @@ SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+financia
 SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+SAT_00_02
 NPS_01_01~SAT_00_01+image'
 
-
+constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard")
 var_dep_eq<-c("SAT_00_02","SAT_00_01","NPS_01_01")
 segunda_ordem<-c("infra")
 
@@ -460,6 +460,128 @@ for(i in 1:length(pegar3)){
 
 lista_variaveis<-NULL
 lista_variaveis<-unlist(pegar5)
+
+
+variaveis_lat<- setdiff(lista_variaveis, colnames(data_value_labels))
+variaveis_lat<- setdiff(variaveis_lat, constructs)
+
+if (length(variaveis_lat > 0)) {
+  latent<-NULL
+  latent<-unlist(strsplit(model_completo,
+                          split=c("\n")))
+  
+  latent<-grep("=~", latent, value=T)
+  
+  # agora vamos dividir entre constuctos e 'preditores'
+  
+  latentes<-list()
+  nome_constructo<-c()
+  
+  for(i in 1:length(latent)){
+    latentes[i]<-strsplit(latent[i],
+                          split=c("=~"))
+    nome_constructo[i]<-trimws(latentes[[i]][1])
+    nome_constructo<-trimws(nome_constructo)
+  }
+  
+  print("dividir entre constuctos e preditores:ok")
+  # separar os preditores dentro de cada constructo
+  
+  pred<-list()
+  
+  for(i in 1:length(latent)){
+    
+    ## vamos dividir em cada elemento da parte dos preditores 
+    
+    pred[i]<-strsplit(latentes[[i]][2],
+                      split=c("\\+"))
+    
+  }
+  varia<-(pred)
+  ## colocar o nome do constructo em cada objeto
+  names(varia)<-trimws(nome_constructo)
+  
+  ### VAMOS TIRAR AQUELAS VARIAVEIS QUE FORAM RETIRADAS
+  ### NO TESTE DE MATRIZ DE COVARIANCIAS
+  k<-NULL
+  var_aux<-NULL
+  res<-NULL
+  aux<-NULL
+  
+  for(i in 1:length(variaveis_lat)){
+    
+    variaveis_lat_aux<-variaveis_lat[i]
+    res <- lapply(varia, function(ch) grep(variaveis_lat_aux, ch))
+    aux<-sapply(res, function(x) length(x) > 0)
+    
+    if(sum(aux)>0){
+      
+      var_aux<-names(which(aux==T))
+      k<-grep(variaveis_lat_aux, varia[[var_aux]])
+      varia[[var_aux]][k]<-NA
+      varia[[var_aux]]<-varia[[var_aux]][complete.cases(varia[[var_aux]])]
+      
+    }
+    # variaveis_lat_aux<-NULL
+    k<-NULL
+    var_aux<-NULL
+    res<-NULL
+    aux<-NULL
+  }
+  
+  model_completo <- NULL
+  for(i in 1:length(varia)){
+    
+    va_lt<-NULL
+    
+    va_lt[i]<-paste(names(varia)[i],"=~")
+    
+    modelo<-NULL
+    var_lat<-(paste(unlist(varia[[i]]),"+"))
+    modelo<-paste(var_lat, collapse = " ")
+    modelo<-substr(modelo, 1, nchar(modelo)-2)
+    modelo<-paste(va_lt[i], modelo,"\n")
+    model_completo<-paste(model_completo, modelo)
+    
+  }
+  ## dividir variáveis
+  pegar1<-NULL
+  pegar1<-unlist(strsplit(model_completo,
+                          split=c("\n")))
+  pegar2<-NULL
+  pegar2<-grep("=~", pegar1, value=T)
+  
+  # agora vamos dividir entre constuctos e 'preditores'
+  
+  pegar3<-list()
+  pegar4<-c()
+  
+  
+  for(i in 1:length(pegar2)){
+    pegar3[i]<-strsplit(pegar2[i],
+                        split=c("=~"))
+    pegar4[i]<-trimws(pegar2[[i]][1])
+    pegar4<-trimws(pegar4)
+  }
+  
+  # separar os preditores dentro de cada constructo
+  
+  pegar5<-list()
+  
+  for(i in 1:length(pegar3)){
+    
+    ## vamos dividir em cada elemento da parte dos preditores 
+    
+    pegar5[i]<-strsplit(pegar3[[i]][2],
+                        split=c("\\+"))
+    
+  }
+  
+  lista_variaveis<-NULL
+  lista_variaveis<-unlist(pegar5)
+  lista_variaveis <- trimws(lista_variaveis)
+}
+
 variaveis_do_modelo<-Reduce(intersect, list(lista_variaveis,colnames(data_raw)))
 
 
