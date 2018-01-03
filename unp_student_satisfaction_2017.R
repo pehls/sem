@@ -1493,124 +1493,133 @@ for(q in 1:length(quebras)){
     
     est_modelo_impacto<-est_modelo_impacto[c("lhs", "label_lhs", "op", "rhs", "label_rhs","std.all","T2B_result")]
     est_modelo_impacto$T2B_result<-as.numeric(as.character(est_modelo_impacto$T2B_result))
- # }
-#}
-################################################################################################################################################################################################################
-### Exportar para um excel
-################################################################################################################################################################################################################
-
-# Create an Excel workbook. 
-# Both .xls and .xlsx file formats can be used.
-#setwd(export)
-
-#### vamos criar uma nova pasta das quebras
-
-#dir.create(nivel_label)
-#pasta_output<-paste(export, nivel_label,sep="\\")
-fileName<-paste(nivel_label,"resultados_SEM.xlsx",sep="_")
-#fileXls <- paste(pasta_output,fileName,sep='\\')
-fileXls <- fileName
-unlink(fileXls, recursive = FALSE, force = FALSE)
-exc <- loadWorkbook(fileXls, create = TRUE)
-
-## Estimativas na planilha estimativas
-
-createSheet(exc,'Estimativas')
-saveWorkbook(exc)
-input <- est_modelo_final_reg_val
-writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
-saveWorkbook(exc)
-
-### Analise Fatorial Confirmatoria Diagnostico Stepwise
-fileGraph <- paste(nivel_label,'graph.png',sep="_")
-png(filename = fileGraph, width = 800, height = 600)
-par(mfrow=c(2,3))
-plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
-abline(h=5,col="blue")
-plot(aic, main="Quanto menor, melhor", type="l")
-plot(rmsea, ylim=c(0.01,0.1),main="Quanto menor melhor", type="l")
-abline(h=0.085,col="red")
-plot(cfi, ylim=c(0.5,1),main="Quanto maior melhor", type="l")
-abline(h=0.7,col="red")
-plot(alfa_cronbach, main="Quanto maior melhor", 
-     ylim=c(0.5,1), type="l")
-plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
-abline(h=0.5,col="red")
-invisible(dev.off())
-drop_upload(fileGraph)
-
-
-### Estatisticas resumo modelo
-resumo_modelo<-fitmeasures(modelo_final_final, c("rmsea", "cfi"))
-createSheet(exc,'EstatResumo')
-saveWorkbook(exc)
-input <- as.data.frame(cbind(round(resumo_modelo,4), 
-                             rownames(resumo_modelo)))
-input<-rbind(input,n=round(n_obs,1))
-
-input$estat<-rownames(input)
-writeWorksheet(exc, input, sheet ='EstatResumo',header=T,rownames = T, startRow = 1, startCol = 2)
-saveWorkbook(exc)
-
-### R squared
-
-createSheet(exc,'Rsquared')
-saveWorkbook(exc)
-input <- r2_bancofim_v1
-writeWorksheet(exc, input, sheet ='Rsquared',header=T,rownames = T, startRow = 1, startCol = 2)
-saveWorkbook(exc)
-#drop_upload(fileName)
-#### Reliability CFA
-
-createSheet(exc,'ReliabilityCFA')
-saveWorkbook(exc)
-rel_aux<-reliability(modelo_partial[[melhor]])
-input <- data.frame(Estat=row.names(rel_aux),rel_aux) 
-writeWorksheet(exc, input, 
-               sheet ='ReliabilityCFA',header=T,rownames = T, startRow = 1, startCol = 2)
-
-
-
-
-input2<-data.frame(reliabilityL2(modelo_final_final,segunda_ordem))
-input3<-data.frame(cbind(CR=row.names(input2),segunda_ordem,est=(input2[,1])))
-input3$est<-as.numeric(as.character(input3$est))
-
-writeWorksheet(exc, input3, 
-               sheet ='ReliabilityCFA',header=T,rownames = T, startRow = nrow(input)+7, startCol = 2)
-
-modelo_partial = NULL
-##############
-saveWorkbook(exc)
-
-
-
-### Impactos
-
-createSheet(exc,'Impactos')
-saveWorkbook(exc)
-input <- est_modelo_impacto[order(est_modelo_impacto$lhs),]
-
-
-writeWorksheet(exc, input, sheet ='Impactos',header=T,rownames = T, startRow = 1, startCol = 2)
-saveWorkbook(exc)
-
-## Diferenca entre variaveis entrada/saida
-
-difference <- getDifference(difference)
-difference2<-data.frame(codigo=difference)
-var_labels2<-var_labels
-var_labels2$codigo<-as.character(var_labels2$codigo)
-
-var_fora<-merge(difference2, var_labels2, all.x = T)
-colnames(var_fora)[1]<-("VariaveisDeFora")
-
-createSheet(exc,'VarFora')
-saveWorkbook(exc)
-input <- var_fora
-writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
-saveWorkbook(exc)
-drop_upload(fileName)
+   # }
+  #}
+  ################################################################################################################################################################################################################
+  ### Exportar para um excel
+  ################################################################################################################################################################################################################
+  
+  # Create an Excel workbook. 
+  # Both .xls and .xlsx file formats can be used.
+  #setwd(export)
+  
+  #### vamos criar uma nova pasta das quebras
+  
+  #dir.create(nivel_label)
+  #pasta_output<-paste(export, nivel_label,sep="\\")
+  fileName<-paste(nivel_label,"resultados_SEM.xlsx",sep="_")
+  #fileXls <- paste(pasta_output,fileName,sep='\\')
+  fileXls <- fileName
+  unlink(fileXls, recursive = FALSE, force = FALSE)
+  exc <- loadWorkbook(fileXls, create = TRUE)
+  
+  ## Estimativas na planilha estimativas
+  
+  createSheet(exc,'Estimativas')
+  saveWorkbook(exc)
+  input <- est_modelo_final_reg_val
+  writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
+  saveWorkbook(exc)
+  
+  ### Analise Fatorial Confirmatoria Diagnostico Stepwise
+  fileGraph <- paste(nivel_label,'graph.png',sep="_")
+  png(filename = fileGraph, width = 800, height = 600)
+  par(mfrow=c(2,3))
+  plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
+  abline(h=5,col="blue")
+  plot(aic, main="Quanto menor, melhor", type="l")
+  plot(rmsea, ylim=c(0.01,0.1),main="Quanto menor melhor", type="l")
+  abline(h=0.085,col="red")
+  plot(cfi, ylim=c(0.5,1),main="Quanto maior melhor", type="l")
+  abline(h=0.7,col="red")
+  plot(alfa_cronbach, main="Quanto maior melhor", 
+       ylim=c(0.5,1), type="l")
+  plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
+  abline(h=0.5,col="red")
+  invisible(dev.off())
+  drop_upload(fileGraph)
+  
+  
+  ### Estatisticas resumo modelo
+  resumo_modelo<-fitmeasures(modelo_final_final, c("rmsea", "cfi"))
+  createSheet(exc,'EstatResumo')
+  saveWorkbook(exc)
+  input <- as.data.frame(cbind(round(resumo_modelo,4), 
+                               rownames(resumo_modelo)))
+  input<-rbind(input,n=round(n_obs,1))
+  
+  input$estat<-rownames(input)
+  writeWorksheet(exc, input, sheet ='EstatResumo',header=T,rownames = T, startRow = 1, startCol = 2)
+  saveWorkbook(exc)
+  
+  ### R squared
+  
+  createSheet(exc,'Rsquared')
+  saveWorkbook(exc)
+  input <- r2_bancofim_v1
+  writeWorksheet(exc, input, sheet ='Rsquared',header=T,rownames = T, startRow = 1, startCol = 2)
+  saveWorkbook(exc)
+  #drop_upload(fileName)
+  #### Reliability CFA
+  
+  createSheet(exc,'ReliabilityCFA')
+  saveWorkbook(exc)
+  rel_aux<-reliability(modelo_partial[[melhor]])
+  input <- data.frame(Estat=row.names(rel_aux),rel_aux) 
+  writeWorksheet(exc, input, 
+                 sheet ='ReliabilityCFA',header=T,rownames = T, startRow = 1, startCol = 2)
+  
+  
+  
+  
+  input2<-data.frame(reliabilityL2(modelo_final_final,segunda_ordem))
+  input3<-data.frame(cbind(CR=row.names(input2),segunda_ordem,est=(input2[,1])))
+  input3$est<-as.numeric(as.character(input3$est))
+  
+  writeWorksheet(exc, input3, 
+                 sheet ='ReliabilityCFA',header=T,rownames = T, startRow = nrow(input)+7, startCol = 2)
+  
+  modelo_partial = NULL
+  ##############
+  saveWorkbook(exc)
+  
+  
+  
+  ### Impactos
+  
+  createSheet(exc,'Impactos')
+  saveWorkbook(exc)
+  input <- est_modelo_impacto[order(est_modelo_impacto$lhs),]
+  
+  
+  writeWorksheet(exc, input, sheet ='Impactos',header=T,rownames = T, startRow = 1, startCol = 2)
+  saveWorkbook(exc)
+  
+  ## Diferenca entre variaveis entrada/saida
+  
+  difference <- getDifference(difference)
+  difference2<-data.frame(codigo=difference)
+  var_labels2<-var_labels
+  var_labels2$codigo<-as.character(var_labels2$codigo)
+  
+  var_fora<-merge(difference2, var_labels2, all.x = T)
+  colnames(var_fora)[1]<-("VariaveisDeFora")
+  
+  createSheet(exc,'VarFora')
+  saveWorkbook(exc)
+  input <- var_fora
+  writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
+  saveWorkbook(exc)
+  drop_upload(fileName)
+  
+  resumo_modelo = NULL
+  r2_bancofim_v1 = NULL
+  modelo_final_final = NULL
+  est_modelo_impacto = NULL
+  var_fora = NULL
+  modelo_partial = NULL
+  est_modelo_final_reg_val = NULL
+  input = NULL
 
   }
 }

@@ -610,14 +610,14 @@ svy.df<-svydesign(id=~ResponseId,
 
 for(q in 1:length(quebras)){
   ## quebra 'q'
-  #q<-1
+  q<-1
   
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
   
   
   for(lev in 1:length(niv)){  
-    
+    lev <- 2
     ###  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra
@@ -1881,6 +1881,15 @@ for(q in 1:length(quebras)){
     writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
     saveWorkbook(exc)
     drop_upload(fileName)
+    
+    resumo_modelo = NULL
+    r2_bancofim_v1 = NULL
+    modelo_final_final = NULL
+    est_modelo_impacto = NULL
+    var_fora = NULL
+    modelo_partial = NULL
+    est_modelo_final_reg_val = NULL
+    input = NULL
     
   }
 }
