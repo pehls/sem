@@ -376,6 +376,7 @@ export<-"/home/gabrielpehls/sem/outputs"
 ##   quais quebras usar
 
 quebras<-c("VERTICAL", "CAMPUS", "DEGREE", "INGRESSO","Finished")
+quebrasFPB<-c("VERTICAL", "TYPE", "AnoIngresso","Finished")
 
 
 ### modelo descrito completo
@@ -383,27 +384,28 @@ quebras<-c("VERTICAL", "CAMPUS", "DEGREE", "INGRESSO","Finished")
 model_completo <- '
 campus=~INF_01_INF_01_01+INF_01_INF_01_02+INF_01_INF_01_04+INF_01_INF_01_06+INF_01_INF_01_08+INF_01_INF_01_09+INF_01_INF_01_11+INF_01_INF_01_13+INF_01_INF_01_15+INF_01_INF_01_12+INF_01_INF_01_19+INF_01_INF_01_21
 classroom=~INF_02_INF_02_03+INF_02_INF_02_04+INF_02_INF_02_05+INF_02_INF_02_06+INF_02_INF_02_07
-it_labs=~INF_03_INF_03_01+INF_03_INF_03_02+INF_03_INF_03_03+INF_03_INF_03_04+INF_03_INF_03_06
+it_labs=~INF_03_INF_03_01+INF_03_INF_03_02+INF_03_INF_03_03+INF_03_INF_03_04+INF_03_INF_03_06+INF_03_INF_03_07
 specific_labs=~INF_04_INF_04_01+INF_04_INF_04_02+INF_04_INF_04_03+INF_04_INF_04_06
 library=~INF_05_INF_05_02+INF_05_INF_05_04+INF_05_INF_05_10+INF_05_INF_05_09+INF_05_INF_05_07
 blackboard=~INF_06_INF_06_01+INF_06_INF_06_02+INF_06_INF_06_04+INF_06_INF_06_07+INF_06_INF_06_08
-faculty=~PROF_02_PROF_02_01+PROF_02_PROF_02_02+PROF_02_PROF_02_03+PROF_02_PROF_02_04+PROF_02_PROF_02_05+PROF_02_PROF_02_06+PROF_02_PROF_02_07+PROF_02_PROF_02_08
-coord=~COORD_02_COORD_02_01+COORD_02_COORD_02_02+COORD_02_COORD_02_03+COORD_02_COORD_02_04
+faculty=~PROF_02_PROF_02_01+PROF_02_PROF_02_02+PROF_02_PROF_02_03+PROF_02_PROF_02_04+PROF_02_PROF_02_05+PROF_02_PROF_02_06+PROF_02_PROF_02_07+PROF_02_PROF_02_08+PROF_02_PROF_02_20
+coord=~COORD_02_COORD_02_01+COORD_02_COORD_02_02+COORD_02_COORD_02_03+COORD_02_COORD_02_04+COORD_02_COORD_02_20
 call=~CALL_01_CALL_01_01+CALL_01_CALL_01_02+CALL_01_CALL_01_03+CALL_01_CALL_01_04
 employ=~EMPL_02_EMPL_02_01+EMPL_02_EMPL_02_02+EMPL_02_EMPL_02_03+EMPL_02_EMPL_02_04+EMPL_02_EMPL_02_05+EMPL_02_EMPL_02_8
 financial_serv=~FSERV_01_FSERV_01_01+FSERV_01_FSERV_01_02+FSERV_01_FSERV_01_03+FSERV_01_FSERV_01_04
 program=~PROG_02_PROG_02_01+PROG_02_PROG_02_02+PROG_02_PROG_02_03+PROG_02_PROG_02_04+PROG_02_PROG_02_05
+disc_online=~ELEAR_02_ELEAR_02_01+ELEAR_02_ELEAR_02_02+ELEAR_02_ELEAR_02_03+ELEAR_02_ELEAR_02_04+ELEAR_02_ELEAR_02_05
 comunic=~COMM_01_COMM_01_01+COMM_01_COMM_01_01.0+COMM_01_COMM_01_01.1+COMM_01_COMM_01_01.2+COMM_01_COMM_01_02+COMM_01_COMM_01_03+COMM_01_COMM_01_06+COMM_01_COMM_01_08
 std_services=~SSERV_01_SSERV_01_01+SSERV_01_SSERV_01_02+SSERV_01_SSERV_01_03+SSERV_01_SSERV_01_04
-inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_04+INTL_01_INTL_01_05+INTL_01_INTL_01_07
+inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_04+INTL_01_INTL_01_05+INTL_01_INTL_01_06+INTL_01_INTL_01_07
 image=~IMG_01_IMG_01_01+IMG_01_IMG_01_02+IMG_01_IMG_01_03
 ##
 infra=~campus+classroom+it_labs+specific_labs+library+blackboard
-SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord
-SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+SAT_00_02
+SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+disc_online
+SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+disc_online+SAT_00_02
 NPS_01_01~SAT_00_01+image'
 
-constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard")
+constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online")
 var_dep_eq<-c("SAT_00_02","SAT_00_01","NPS_01_01")
 segunda_ordem<-c("infra")
 
@@ -732,14 +734,14 @@ svy.df<-svydesign(id=~ResponseId,
 
 for(q in 1:length(quebras)){
   ## quebra 'q'
-  q<-1
+ # q<-1
   
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
   
   
   for(lev in 1:length(niv)){  
-    lev <- 2
+    #lev <- 2
     ###  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra

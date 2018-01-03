@@ -1,4 +1,3 @@
-
 install.packages("lavaan")
 
 install.packages("foreign")
@@ -21,6 +20,10 @@ install.packages("RCurl")
 
 install.packages("httpuv")
 
+install.packages("matrixcalc")
+
+install.packages("reshape2")
+
 library(httpuv)
 library(lavaan)
 library(foreign)
@@ -32,6 +35,9 @@ library(tidyverse)
 library(doParallel)
 library(rdrop2)
 library(RCurl)
+library(matrixcalc)
+library(reshape2)
+
 # Diretorio de onde baixar o banco de dados
 setwd("/home/gabrielpehls/sem")
 
@@ -49,8 +55,7 @@ dl_from_dropbox <- function(x, key) {
   close(con)
   message(noquote(paste(x, "read into", getwd())))
 }
-dl_from_dropbox("UnP_teste_final_EquacoesEstruturais.sav","otyk42fivu4vsqz")
-##################---- Arquivos para autorizar upload no dropbox -----##################
+dl_from_dropbox("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav","1pkzr0q6g3x3pg9")##################---- Arquivos para autorizar upload no dropbox -----##################
 ##############-----Devem ser atualizados para outra conta do dropbox------##############
 dl_from_dropbox(".httr-oauth","1j0froxvx83quxd")
 dl_from_dropbox("token.rds","169we6hudfy83u8")
@@ -64,7 +69,7 @@ getDifference <- function (difference) {
   formulas <- unlist(strsplit(modelo_name[[melhor]],
                               split=c("\n")))
   parametros <- NULL 
-  for (i in 1:length(formulas)) {	
+  for (i in 1:length(formulas)) {
     
     parametros[i] <- strsplit(formulas[i], split = c("=~"))[[1]][2]
     
@@ -196,7 +201,7 @@ lavaan.survey <-
         attr(sample.cov.g, "var") <- NULL
         tmp  <- as.vector(sample.mean.g)
         names(tmp) <- names(sample.mean.g)
-        sample.mean.g <- tmp	
+        sample.mean.g <- tmp
         print("inicializando list gamma")
         list(Gamma.g=Gamma.g, sample.cov.g=sample.cov.g, sample.mean.g=sample.mean.g)
       }
@@ -346,16 +351,17 @@ no_cores <- (detectCores() -1)
 
 # baixar banco de dados sem labels
 
-data_raw <- read.spss("UnP_teste_final_EquacoesEstruturais.sav",
+data_raw <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
                       to.data.frame=T,
                       header=T,
                       use.value.labels = F,
                       use.missings = T)
 
+data_raw <- data_raw[which(data_raw$ANO_RESP == 2017),]
 
 ## baixar os dados com labels:
 
-data_value_labels <- read.spss("UnP_teste_final_EquacoesEstruturais.sav",
+data_value_labels <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
                                to.data.frame=T,
                                header=T,
                                use.value.labels = T,
@@ -368,7 +374,7 @@ export<-"/home/gabrielpehls/sem/outputs"
 
 ##   quais quebras usar
 
-quebras<-c("VERTICAL","Finished")
+quebras<-c("VERTICAL", "TYPE", "AnoIngresso","Finished")
 
 
 ### modelo descrito completo
@@ -407,7 +413,7 @@ segunda_ordem<-c("infra")
 
 # Ponderar os resultados
 svy.df<-svydesign(id=~ResponseId, 
-                  weights=~WEIGHT,
+                  weights=~Weight_BRZ,
                   data=data_raw)
 
 #pegar as variable labels
@@ -415,6 +421,7 @@ var_labels<-data.frame(attr(data_raw, 'variable.labels'))
 var_labels<-cbind(var_labels, rownames(var_labels))
 rownames(var_labels)<-NULL
 colnames(var_labels)<-c("label","codigo")
+
 #################################################################
 ## Vamos imputar valores para os missing values      ############
 
@@ -581,6 +588,7 @@ variaveis_do_modelo<-Reduce(intersect, list(lista_variaveis,colnames(data_raw)))
 ## transformar as vaiaveis usadas em numericas
 indices_colunas<-NULL
 indices_colunas<-which(colnames(data_raw) %in% variaveis_do_modelo)
+
 for(j in 1:length(indices_colunas)){
   j<-indices_colunas[i]
   data_raw[,j] <-  as.numeric(as.character(data_raw[,j]))
@@ -605,8 +613,8 @@ for(j in 1:length(indices_colunas)){
 #######################################################
 
 indices_colunas<-NULL
-indices_colunas<-which(colnames(data_raw) %in% variaveis_do_modelo)
-
+# indices_colunas<-which(colnames(data_raw) %in% variaveis_do_modelo)
+indices_colunas<-variaveis_do_modelo
 
 
 ## Finalmente, vamos adicionar a media nos NA's das variaveis
@@ -619,20 +627,65 @@ data_raw$concatenar<-do.call(paste, data_raw[,quebras])
 
 # percorrer cada individuo, em cada variavel, ver se esta nulo e colocar
 # a media da variavel conforme a vertical que pertence
-svy.df<-svydesign(id=~ResponseId, 
-                  weights=~WEIGHT,
-                  data=data_raw)
-
 
 for(k in 1:length(indices_colunas)){
   
   j<-indices_colunas[k]
   
-  medias_aux<-svyby(~eval(as.symbol(colnames(data_raw)[j])),
-                    ~concatenar,
-                    svy.df,
-                    svymean, 
-                    na.rm =T)
+  teste_nan<-NULL
+  
+  teste_nan<-aggregate(data_raw[,j],
+                       list(data_raw$concatenar), 
+                       mean,
+                       na.rm=T)
+  
+  
+  
+  svy.df<-NULL
+  svy.df<-svydesign(id=~ResponseId, 
+                    weights=~Weight_BRZ,
+                    data=data_raw)
+  
+  
+  media_geal_aux<-NULL
+  media_geal_aux<-svymean(~data_raw[,j], 
+                          design=svy.df,
+                          na.rm=T,
+                          deff=T)[1]
+  
+  teste_nan$x[is.nan(teste_nan$x)]<-media_geal_aux
+  
+  # 
+  # 
+  # if(sum(is.nan(teste_nan$x))>0){
+  #   
+  #           concat_NoN_NaN<-NULL
+  #           concat_NoN_NaN<-teste_nan[complete.cases(teste_nan$x),1]
+  #           data_raw_aux<-NULL
+  #           data_raw_aux<-data_raw[data_raw$concatenar %in% concat_NoN_NaN,]
+  #           
+  #           svy.df<-svydesign(id=~ResponseId, 
+  #                             weights=~Weight_BRZ,
+  #                             data=data_raw_aux)
+  #           medias_aux<-NULL
+  #           medias_aux<-svyby(~eval(as.symbol(j)),
+  #                             ~concatenar,
+  #                             svy.df,
+  #                             svymean, 
+  #                             na.rm =T)  
+  #           
+  # }else{
+  #   
+  #   svy.df<-svydesign(id=~ResponseId, 
+  #                     weights=~Weight_BRZ,
+  #                     data=data_raw)
+  #   medias_aux<-NULL
+  #   medias_aux<-svyby(~eval(as.symbol(j)),
+  #                     ~concatenar,
+  #                     svy.df,
+  #                     svymean, 
+  #                     na.rm =T)  
+  # }
   
   
   for(i in 1:nrow(data_raw)){
@@ -640,27 +693,32 @@ for(k in 1:length(indices_colunas)){
     vertical_aux<-data_raw$concatenar[i]
     
     if(is.na(data_raw[i,j])){
-      data_aux<-NULL
-      
+      # data_aux<-NULL
+      # data_aux<-data_raw[data_raw$concatenar==vertical_aux,]
+      # 
       ### se toda a variavel estiver vazia na vertical,
       ### entao temos que imputar a media geral
       
-      if(sum(is.na(data_raw[,j]))==length(data_raw[,j])){
-        
-        data_raw[i,j]<- svymean(data_raw[,j], design=svy.df, na.rm=T)[1]
-      }else{
-        ### caso contrario, vamos botar a media da variavel da vertical
-        
-        
-        data_raw[i,j]<-medias_aux[vertical_aux,2]
-      }
+      data_raw[i,j]<-teste_nan$x[teste_nan$Group.1==vertical_aux]
+      
+      # if(sum(is.na(data_raw[data_raw$concatenar==vertical_aux,j]))==length(data_aux[,j])){
+      #   
+      #   svy.df<-NULL
+      #   svy.df<-svydesign(id=~ResponseId, 
+      #                     weights=~Weight_BRZ,
+      #                     data=data_raw)
+      #   
+      #   data_raw[i,j]<- svymean(data_raw[,j], design=svy.df, na.rm=T)[1]
+      #   
     }
   }
 }
 
+
+
 # Atualizar a ponderacao os resultados
 svy.df<-svydesign(id=~ResponseId, 
-                  weights=~WEIGHT,
+                  weights=~Weight_BRZ,
                   data=data_raw)
 
 ###################################################################################################
@@ -673,16 +731,16 @@ svy.df<-svydesign(id=~ResponseId,
 ### A gente vai fazer para cada quebra necessaria    #############################################
 
 for(q in 1:length(quebras)){
-  #q<-1
   ## quebra 'q'
+  #q<-1
+  
   quebra<-quebras[q]
   niv<-levels(as.factor(data_value_labels[,quebras[q]]))
-  lev<-1
   
   
   for(lev in 1:length(niv)){  
-    
-    ##  nivel 'niv' da quebra 'q'
+    #lev <- 2
+    ###  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra
     nivel_label<-levels(as.factor(data_value_labels[,quebras[q]]))[lev]
@@ -692,7 +750,8 @@ for(q in 1:length(quebras)){
     data<-NULL
     data<-data_raw[data_raw[,quebra]==nivel,]
     data<-data[,c(var_dep_eq, "ResponseId",
-                  variaveis_do_modelo,"WEIGHT")]
+                  variaveis_do_modelo,"Weight_BRZ")]
+    
     
     n_obs<-nrow(data)
     if (n_obs < 50) {
@@ -703,7 +762,7 @@ for(q in 1:length(quebras)){
     
     svy.df<-NULL
     svy.df<-svydesign(id=~ResponseId, 
-                      weights=~WEIGHT,
+                      weights=~Weight_BRZ,
                       data=data)
     
     
@@ -714,7 +773,7 @@ for(q in 1:length(quebras)){
     # ### banco auxiliar para top 2 box
     # 
     data_aux_top<-data_raw[data_raw[,quebra]==nivel,] %>%
-      select(indices_colunas, "WEIGHT", "ResponseId", quebras)
+      select(indices_colunas, "Weight_BRZ", "ResponseId", quebras)
     # executado na linha 136
     
     
@@ -729,11 +788,12 @@ for(q in 1:length(quebras)){
     # Ponderar os resultados
     svy.df.auxtop<-NULL
     svy.df.auxtop<-svydesign(id=~ResponseId, 
-                             weights=~WEIGHT,
+                             weights=~Weight_BRZ,
                              data=data_aux_top)
     df.top2box<-data.frame()
     
     for(i in 1:length(indices_colunas)){
+      # i<-52
       nome_aux_t2b<-NULL    
       nome_aux_t2b<-colnames(data_aux_top[i])
       aux_t2box<-NULL
@@ -760,8 +820,192 @@ for(q in 1:length(quebras)){
     HS.model <- substr(model_completo,1,
                        regexpr("#",model_completo)-1)
     
-    fit_aux<-NULL
     
+    #########################################################################
+    ### VAMOS TESTAR SE A MATRIZ DE COVARIANCIA EH DEFINIDA POSITIVA #######
+    
+    
+    teste_covariancia<-(is.positive.definite(cov(data[,indices_colunas])) 
+                        & n_obs>length(indices_colunas))
+    
+    #### Se for FALSE,  entao a matriz de covariancia nao eh definida, positiva.
+    #### E a modelagem de equacoes estruturais nao vai rodar.
+    
+    ################# Aqui vamos fazer alteracoes na varia enquanto a matriz
+    ################# for NAO definida positiva
+    ################# SE teste_covariavianci == F, entao temos que a matriz
+    ################ eh NAO DEFINIDA POSITIVA
+    
+    variaveis_PROBLEMA_MATRIZ<-NULL
+    ind<-1
+    
+    while(teste_covariancia==F){
+      
+      ## um dos problemas associados com a matriz NAO DEFINIDA positiva eh a 
+      ## multicolinearidade. vamos analisar os casos em que ha uma correlacao muito forte
+      
+      correl_tirar_var<-cor(data[,indices_colunas])
+      
+      ## colocar zeros na diagonal da matriz
+      diag(correl_tirar_var)<-0
+      
+      ## listar as variaveis com a maior correlacao
+      max_correl<-NULL
+      correl_tirar_var_aux<-melt(correl_tirar_var)
+      max_correl<-correl_tirar_var_aux[order(-correl_tirar_var_aux$value),][1,]
+      
+      t2b_var1<-NULL
+      t2b_var2<-NULL
+      ### vamos tirar aquela variavel que tem o menor top2box dai
+      t2b_var1<-merge(max_correl, df.top2box, by.x=c("Var1"), by.y=c("variaveis"))
+      t2b_var2<-merge(t2b_var1, df.top2box, by.x=c("Var2"), by.y=c("variaveis"))
+      
+      
+      if(t2b_var2$T2B_result.x==t2b_var2$T2B_result.y){
+        
+        sorteio_aux<-NULL
+        set.seed(1234)
+        sorteio_aux<-sample(c(1,2),1)
+        t2b_var2$retirar<-as.character(t2b_var2[1,sorteio_aux])
+        
+      }else{
+        
+        
+        t2b_var2$retirar<-ifelse(as.numeric(as.character(t2b_var2$T2B_result.x))<as.numeric(as.character(t2b_var2$T2B_result.y)), 
+                                 t2b_var2$retirar<-as.character(t2b_var2$Var2),
+                                 t2b_var2$retirar<-as.character(t2b_var2$Var1))
+        
+        
+        
+      }
+      ## coloca num vetor quais variaveis ficaram de fora
+      retirar_var_aux<-NULL
+      retirar_var_aux<-t2b_var2$retirar
+      variaveis_PROBLEMA_MATRIZ[ind]<-retirar_var_aux
+      
+      coord_retirar<-NULL
+      coord_retirar<-which(indices_colunas %in% retirar_var_aux)
+      indices_colunas<-indices_colunas[-coord_retirar]
+      
+      
+      
+      ## testa se eh positiva definida
+      teste_covariancia<-(is.positive.definite(cov(data[,indices_colunas])) 
+                          & n_obs>length(indices_colunas))
+      
+      if(teste_covariancia==F | length(variaveis_PROBLEMA_MATRIZ)>0){
+        ind<-ind+1
+      }else{
+        ind<-ind
+      }
+    }
+    
+    
+    
+    ###############################################
+    
+    ## TIRAMOS AS VARIAVEIS QUE COM A MULTICOLINEARIDADE
+    
+    ## AFETAVAM NA MATRIZ.
+    
+    ##  AGORA PRECISAMOS TIRAR AS VARIAVEIS QUE SAIRAM DO MODELO INICIAL
+    ### ISSO SO VAI ACONTECER SE FORAM FEITAS ALTERACOES EM FUNCAO
+    ## DO TAMANHO DE AMOSTRA OU DE A MATRIZ NAO SER DEFINIDA POSITIVA
+    
+    if(ind>1){
+      
+      ## primeiro passo eh dividir os models latentes
+      
+      
+      
+      latent<-NULL
+      latent<-unlist(strsplit(HS.model,
+                              split=c("\n")))
+      
+      latent<-grep("=~", latent, value=T)
+      
+      # agora vamos dividir entre constuctos e 'preditores'
+      
+      latentes<-list()
+      nome_constructo<-c()
+      
+      for(i in 1:length(latent)){
+        latentes[i]<-strsplit(latent[i],
+                              split=c("=~"))
+        nome_constructo[i]<-trimws(latentes[[i]][1])
+        nome_constructo<-trimws(nome_constructo)
+      }
+      
+      print("dividir entre constuctos e preditores:ok")
+      # separar os preditores dentro de cada constructo
+      
+      pred<-list()
+      
+      for(i in 1:length(latent)){
+        
+        ## vamos dividir em cada elemento da parte dos preditores 
+        
+        pred[i]<-strsplit(latentes[[i]][2],
+                          split=c("\\+"))
+        
+      }
+      varia<-(pred)
+      ## colocar o nome do constructo em cada objeto
+      names(varia)<-trimws(nome_constructo)
+      
+      ### VAMOS TIRAR AQUELAS VARIAVEIS QUE FORAM RETIRADAS
+      ### NO TESTE DE MATRIZ DE COVARIANCIAS
+      variaveis_PROBLEMA_MATRIZ_aux<-NULL
+      k<-NULL
+      var_aux<-NULL
+      res<-NULL
+      aux<-NULL
+      
+      for(i in 1:length(variaveis_PROBLEMA_MATRIZ)){
+        
+        variaveis_PROBLEMA_MATRIZ_aux<-variaveis_PROBLEMA_MATRIZ[i]
+        res <- lapply(varia, function(ch) grep(variaveis_PROBLEMA_MATRIZ_aux, ch))
+        aux<-sapply(res, function(x) length(x) > 0)
+        
+        if(sum(aux)>0){
+          
+          var_aux<-names(which(aux==T))
+          k<-grep(variaveis_PROBLEMA_MATRIZ_aux, varia[[var_aux]])
+          varia[[var_aux]][k]<-NA
+          varia[[var_aux]]<-varia[[var_aux]][complete.cases(varia[[var_aux]])]
+          
+        }
+        # variaveis_PROBLEMA_MATRIZ_aux<-NULL
+        k<-NULL
+        var_aux<-NULL
+        res<-NULL
+        aux<-NULL
+      }
+      
+      
+      HS.model<-NULL
+      
+      for(i in 1:length(varia)){
+        
+        va_lt<-NULL
+        
+        va_lt[i]<-paste(names(varia)[i],"=~")
+        
+        modelo<-NULL
+        var_lat<-(paste(unlist(varia[[i]]),"+"))
+        modelo<-paste(var_lat, collapse = " ")
+        modelo<-substr(modelo, 1, nchar(modelo)-2)
+        modelo<-paste(va_lt[i], modelo,"\n")
+        HS.model<-paste(HS.model, modelo)
+        
+      }
+      va_lt<-NULL
+      
+      
+    }
+    
+    
+    fit_aux<-NULL
     
     fit_aux <- cfa(HS.model,
                    data=data,
@@ -801,13 +1045,16 @@ for(q in 1:length(quebras)){
     valid_discr<-c()
     bic<-c()
     
-    razao_chisq[1]<-fitMeasures(modelo_partial[[1]],"chisq")/fitMeasures(modelo_partial[[1]],"df")
-    aic[1]<-fitMeasures(modelo_partial[[1]],"aic")
-    rmsea[1]<-fitMeasures(modelo_partial[[1]],"rmsea")
-    cfi[1]<-fitMeasures(modelo_partial[[1]],"cfi")
+    fit_modelo_partial <- NULL
+    fit_modelo_partial <- fitMeasures(modelo_partial[[1]])
+    
+    razao_chisq[1]<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
+    aic[1]<-fit_modelo_partial["aic"]
+    rmsea[1]<-fit_modelo_partial["rmsea"]
+    cfi[1]<-fit_modelo_partial["cfi"]
     alfa_cronbach[1]<-reliability(modelo_partial[[1]])[1,ncol(reliability(modelo_partial[[1]]))]
     ave_min[1]<-min((reliability(modelo_partial[[1]])[5,]))
-    bic[1]<-fitMeasures(modelo_partial[[1]],"bic")
+    bic[1]<-fit_modelo_partial["bic"]
     # Validade discriminante
     # Testada atraves da inter-correlacao entre os constructos
     # indices acima de 0.9 podem indicar multicolinearidade entre
@@ -859,6 +1106,8 @@ for(q in 1:length(quebras)){
     ### verificar se nao ha nenhuma variancia menor que zero
     var_aux<-NULL
     var_aux<-sum(estimativas$est[estimativas$op=="~~"]<0)
+    
+    
     ### verificar se tem alguma estimativa padronizada menor que 0.25 Std.all (cuja interpretacao eh igual aos loading da anlise fatorial confirmatoria)
     estimativas_pad<-NULL
     
@@ -876,11 +1125,11 @@ for(q in 1:length(quebras)){
     ## Outro criterio bastante utilizado eh o de chisq/df
     ## Um valor abaixo de 5 jah eh considerado razoavel.
     
-    chisq_df<-fitMeasures(modelo_partial[[1]], "chisq")/fitMeasures(modelo_partial[[1]], "df")
+    chisq_df<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
     
     
     
-    if( fitMeasures(modelo_partial[[1]], "rmsea.ci.upper")<0.08 & fitMeasures(modelo_partial[[1]], "srmr")<0.08 & fitMeasures(modelo_partial[[1]], "cfi")>0.8 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5){
+    if( fit_modelo_partial["rmsea.ci.upper"]<0.08 & fit_modelo_partial["srmr"]<0.08 & fit_modelo_partial["cfi"]>0.8 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5){
       rodar<-0
     }else{
       rodar<-1
@@ -901,7 +1150,7 @@ for(q in 1:length(quebras)){
     modelo_name<-list()
     
     # modelo_partial[[1]]<-fit
-    modelo_name[[1]]<-HS.model
+    modelo_name[[z]]<-HS.model
     
     print("vai entrar no while da CFA")
     
@@ -963,7 +1212,7 @@ for(q in 1:length(quebras)){
       
       # tirar as variaveis nao significativas
       print("")
-      estimativas<-parameterEstimates(modelo_partial[[1]])[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas<-parameterEstimates(modelo_partial[[z]])[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       est_aux<-NULL
       est_aux<-estimativas[(estimativas$pvalue>0.05
                             & estimativas$op=="=~")| (estimativas$est<0 &
@@ -975,12 +1224,16 @@ for(q in 1:length(quebras)){
       i <- 1
       ###############################
       if (nrow(retirar)>0) {
-        registerDoParallel(cores = no_cores)
-        cl <- makeCluster(no_cores)
-        clusterExport(cl, "varia")
-        clusterExport(cl, "retirar")
-        varia <- parLapply(cl, 1:nrow(retirar), retirarVarPadMenor(i))
-        stopCluster(cl)
+        for(i in 1:nrow(retirar)) {
+          v_l_aux<-NULL
+          rhs_aux<-NULL
+          v_l_aux<-retirar[i,1]
+          rhs_aux<-retirar[i,2]
+          
+          k<-grep(rhs_aux, varia[[v_l_aux]])
+          varia[[v_l_aux]][k]<-NA
+          varia[[v_l_aux]]<-varia[[v_l_aux]][complete.cases(varia[[v_l_aux]])]
+        } 
       }else{
         retirar<-NULL
       }
@@ -988,9 +1241,9 @@ for(q in 1:length(quebras)){
       ###############################
       
       print("retirar variaveis nao significativas:ok")
-      
+      estimativas2<-NULL
       #### Retirar variaveis cuja padronizacao for menor que 0.25
-      estimativas2<-parameterEstimates(modelo_partial[[1]], standardized = T)[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas2<-parameterEstimates(modelo_partial[[z]], standardized = T)[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       
       est_aux2<-estimativas2[(estimativas2$std.lv<0.25
                               & estimativas$op=="=~"),]
@@ -1000,7 +1253,14 @@ for(q in 1:length(quebras)){
       ###############################
       if (nrow(retirar)>0) {
         for(i in 1:nrow(retirar)) {
-          retirarVarPadMenor(i)
+          v_l_aux<-NULL
+          rhs_aux<-NULL
+          v_l_aux<-retirar[i,1]
+          rhs_aux<-retirar[i,2]
+          
+          k<-grep(rhs_aux, varia[[v_l_aux]])
+          varia[[v_l_aux]][k]<-NA
+          varia[[v_l_aux]]<-varia[[v_l_aux]][complete.cases(varia[[v_l_aux]])]
         } 
       }else{
         retirar<-NULL
@@ -1012,7 +1272,7 @@ for(q in 1:length(quebras)){
       
       ## alteracoes para incluir variaveis em constructos
       MI<-NULL
-      MI<-modificationIndices(modelo_partial[[1]], sort. = T)
+      MI<-modificationIndices(modelo_partial[[z]], sort. = T)
       # adc_aux<-subset(MI, mi>100 & op=="=~" & epc>0)
       # adc_aux <- adc_aux[order(adc_aux[,'rhs'],-adc_aux[,'epc']),]
       # adc_aux <- adc_aux[!duplicated(adc_aux$rhs),]
@@ -1182,15 +1442,16 @@ for(q in 1:length(quebras)){
       # duracao_ponderacao<-tempo_ponderar_final-tempo_ponderar_inicio
       # print("A duracao da ponderacao do modelo parcial "+z+" e "+duracao_ponderacao)
       # 
-      print(fitMeasures(modelo_partial[[z]], "bic"))
       bic[z]<-fitMeasures(modelo_partial[[z]], "bic")
+      print(bic[z])
+      
       #z<-z+1  
       #modelo_partial[[z]]<-cfa_GSP
       modelo_name[[z]]<-modelofinal
       
       
       estimativas<-NULL
-      estimativas<-parameterEstimates(modelo_partial[[z]], rsquare=T)[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas<-parameterEstimates(modelo_partial[[z]], rsquare=T)[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       # verificar se alguma estimativa eh nao significativa, ou menor que zero 
       est_aux<-NULL
       est_aux<-estimativas[(estimativas$pvalue>0.05
@@ -1208,10 +1469,11 @@ for(q in 1:length(quebras)){
       estimativas_pad<-NULL
       est_pad_aux<-NULL
       chisq_df<-NULL
-      estimativas_pad<-parameterEstimates(modelo_partial[[1]],standardized = T)[complete.cases(parameterEstimates(modelo_partial[[1]])),]
+      estimativas_pad<-parameterEstimates(modelo_partial[[z]],standardized = T)[complete.cases(parameterEstimates(modelo_partial[[z]])),]
       est_pad_aux<-sum(estimativas_pad$std.all[estimativas_pad$op=="=~"]<0.25, na.rm=T)
-      
-      chisq_df<-fitMeasures(modelo_partial[[z]], "chisq")/fitMeasures(modelo_partial[[z]], "df")
+      fit_modelo_partial <- NULL
+      fit_modelo_partial <- fitMeasures(modelo_partial[[z]])
+      chisq_df<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
       fit<-NULL
       # fit<-cfa_GSP
       
@@ -1222,7 +1484,7 @@ for(q in 1:length(quebras)){
         parar<-0
       }
       
-      if( (fitMeasures(modelo_partial[[z]], "rmsea.ci.upper")<0.08 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5) |  (z>30 | parar==1) ){
+      if( (fit_modelo_partial["rmsea.ci.upper"]<0.08 & nrow(est_aux)<1 & r2_aux<1 & var_aux<1 & est_pad_aux<1 & chisq_df<5) |  (z>30 | parar==1) ){
         rodar<-0
       }else{
         rodar<-1
@@ -1237,11 +1499,13 @@ for(q in 1:length(quebras)){
     print("saiu do while da CFA")
     if(z>1){
       for(i in 2:(z)){
+        fit_modelo_partial<- NULL
+        fit_modelo_partial<-fitMeasures(modelo_partial[[i]])
         alfa_cronbach[i]<-reliability(modelo_partial[[i]])[1,ncol(reliability(modelo_partial[[i]]))]
-        razao_chisq[i]<-fitMeasures(modelo_partial[[i]],"chisq")/fitMeasures(modelo_partial[[i]],"df")
-        aic[i]<-fitMeasures(modelo_partial[[i]],"aic")
-        rmsea[i]<-fitMeasures(modelo_partial[[i]],"rmsea")
-        cfi[i]<-fitMeasures(modelo_partial[[i]],"cfi")
+        razao_chisq[i]<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
+        aic[i]<-fit_modelo_partial["aic"]
+        rmsea[i]<-fit_modelo_partial["rmsea"]
+        cfi[i]<-fit_modelo_partial["cfi"]
         ave_min[i]<-min(reliability(modelo_partial[[i]])[5,])
         ## matriz de validade discriminante
         mat_validDis<-inspect(modelo_partial[[i]], "cor.lv")
@@ -1616,138 +1880,145 @@ for(q in 1:length(quebras)){
     
     est_modelo_impacto<-est_modelo_impacto[c("lhs", "label_lhs", "op", "rhs", "label_rhs","std.all","T2B_result")]
     est_modelo_impacto$T2B_result<-as.numeric(as.character(est_modelo_impacto$T2B_result))
-   # }
-  #}
-  ################################################################################################################################################################################################################
-  ### Exportar para um excel
-  ################################################################################################################################################################################################################
-  
-  # Create an Excel workbook. 
-  # Both .xls and .xlsx file formats can be used.
-  #setwd(export)
-  
-  #### vamos criar uma nova pasta das quebras
-  
-  #dir.create(nivel_label)
-  #pasta_output<-paste(export, nivel_label,sep="\\")
-  fileName<-paste(nivel_label,"resultados_SEM.xlsx",sep="_")
-  #fileXls <- paste(pasta_output,fileName,sep='\\')
-  fileXls <- fileName
-  unlink(fileXls, recursive = FALSE, force = FALSE)
-  exc <- loadWorkbook(fileXls, create = TRUE)
-  
-  ## Estimativas na planilha estimativas
-  
-  createSheet(exc,'Estimativas')
-  saveWorkbook(exc)
-  input <- est_modelo_final_reg_val
-  writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
-  saveWorkbook(exc)
-  
-  ### Analise Fatorial Confirmatoria Diagnostico Stepwise
-  fileGraph <- paste(nivel_label,'graph.png',sep="_")
-  png(filename = fileGraph, width = 800, height = 600)
-  par(mfrow=c(2,3))
-  plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
-  abline(h=5,col="blue")
-  plot(aic, main="Quanto menor, melhor", type="l")
-  plot(rmsea, ylim=c(0.01,0.1),main="Quanto menor melhor", type="l")
-  abline(h=0.085,col="red")
-  plot(cfi, ylim=c(0.5,1),main="Quanto maior melhor", type="l")
-  abline(h=0.7,col="red")
-  plot(alfa_cronbach, main="Quanto maior melhor", 
-       ylim=c(0.5,1), type="l")
-  plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
-  abline(h=0.5,col="red")
-  invisible(dev.off())
-  drop_upload(fileGraph, path = "unp")
-  
-  
-  ### Estatisticas resumo modelo
-  resumo_modelo<-fitmeasures(modelo_final_final, c("rmsea", "cfi"))
-  createSheet(exc,'EstatResumo')
-  saveWorkbook(exc)
-  input <- as.data.frame(cbind(round(resumo_modelo,4), 
-                               rownames(resumo_modelo)))
-  input<-rbind(input,n=round(n_obs,1))
-  
-  input$estat<-rownames(input)
-  writeWorksheet(exc, input, sheet ='EstatResumo',header=T,rownames = T, startRow = 1, startCol = 2)
-  saveWorkbook(exc)
-  
-  ### R squared
-  
-  createSheet(exc,'Rsquared')
-  saveWorkbook(exc)
-  input <- r2_bancofim_v1
-  writeWorksheet(exc, input, sheet ='Rsquared',header=T,rownames = T, startRow = 1, startCol = 2)
-  saveWorkbook(exc)
-  #drop_upload(fileName)
-  #### Reliability CFA
-  
-  createSheet(exc,'ReliabilityCFA')
-  saveWorkbook(exc)
-  rel_aux<-reliability(modelo_partial[[melhor]])
-  input <- data.frame(Estat=row.names(rel_aux),rel_aux) 
-  writeWorksheet(exc, input, 
-                 sheet ='ReliabilityCFA',header=T,rownames = T, startRow = 1, startCol = 2)
-  
-  
-  
-  
-  input2<-data.frame(reliabilityL2(modelo_final_final,segunda_ordem))
-  input3<-data.frame(cbind(CR=row.names(input2),segunda_ordem,est=(input2[,1])))
-  input3$est<-as.numeric(as.character(input3$est))
-  
-  writeWorksheet(exc, input3, 
-                 sheet ='ReliabilityCFA',header=T,rownames = T, startRow = nrow(input)+7, startCol = 2)
-  
-  modelo_partial = NULL
-  ##############
-  saveWorkbook(exc)
-  
-  
-  
-  ### Impactos
-  
-  createSheet(exc,'Impactos')
-  saveWorkbook(exc)
-  input <- est_modelo_impacto[order(est_modelo_impacto$lhs),]
-  
-  
-  writeWorksheet(exc, input, sheet ='Impactos',header=T,rownames = T, startRow = 1, startCol = 2)
-  saveWorkbook(exc)
-  
-  ## Diferenca entre variaveis entrada/saida
-  
-  difference <- getDifference(difference)
-  difference2<-data.frame(codigo=difference)
-  var_labels2<-var_labels
-  var_labels2$codigo<-as.character(var_labels2$codigo)
-  
-  var_fora<-merge(difference2, var_labels2, all.x = T)
-  colnames(var_fora)[1]<-("VariaveisDeFora")
-  
-  createSheet(exc,'VarFora')
-  saveWorkbook(exc)
-  input <- var_fora
-  writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
-  saveWorkbook(exc)
-  drop_upload(fileName, path = "unp")
-  
-  resumo_modelo = NULL
-  r2_bancofim_v1 = NULL
-  modelo_final_final = NULL
-  est_modelo_impacto = NULL
-  var_fora = NULL
-  modelo_partial = NULL
-  est_modelo_final_reg_val = NULL
-  input = NULL
-
+    # }
+    #}
+    ################################################################################################################################################################################################################
+    ### Exportar para um excel
+    ################################################################################################################################################################################################################
+    
+    # Create an Excel workbook. 
+    # Both .xls and .xlsx file formats can be used.
+    #setwd(export)
+    
+    #### vamos criar uma nova pasta das quebras
+    
+    #dir.create(nivel_label)
+    #pasta_output<-paste(export, nivel_label,sep="\\")
+    fileName<-paste("FGTeste",paste(nivel_label,"resultados_SEM.xlsx",sep="_"))
+    #fileXls <- paste(pasta_output,fileName,sep='\\')
+    fileXls <- fileName
+    unlink(fileXls, recursive = FALSE, force = FALSE)
+    exc <- loadWorkbook(fileXls, create = TRUE)
+    
+    ## Estimativas na planilha estimativas
+    
+    createSheet(exc,'Estimativas')
+    saveWorkbook(exc)
+    input <- est_modelo_final_reg_val
+    writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
+    saveWorkbook(exc)
+    
+    ### Analise Fatorial Confirmatoria Diagnostico Stepwise
+    fileGraph <- paste("FGTeste",paste(nivel_label,'graph.png',sep="_"))
+    png(filename = fileGraph, width = 800, height = 600)
+    par(mfrow=c(2,3))
+    plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
+    abline(h=5,col="blue")
+    plot(aic, main="Quanto menor, melhor", type="l")
+    plot(rmsea, ylim=c(0.01,0.1),main="Quanto menor melhor", type="l")
+    abline(h=0.085,col="red")
+    plot(cfi, ylim=c(0.5,1),main="Quanto maior melhor", type="l")
+    abline(h=0.7,col="red")
+    plot(alfa_cronbach, main="Quanto maior melhor", 
+         ylim=c(0.5,1), type="l")
+    plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
+    abline(h=0.5,col="red")
+    invisible(dev.off())
+    drop_upload(fileGraph, path = "FPB")
+    
+    
+    ### Estatisticas resumo modelo
+    resumo_modelo<-fitmeasures(modelo_final_final, c("rmsea", "cfi"))
+    createSheet(exc,'EstatResumo')
+    saveWorkbook(exc)
+    input <- as.data.frame(cbind(round(resumo_modelo,4), 
+                                 rownames(resumo_modelo)))
+    input<-rbind(input,n=round(n_obs,1))
+    
+    input$estat<-rownames(input)
+    writeWorksheet(exc, input, sheet ='EstatResumo',header=T,rownames = T, startRow = 1, startCol = 2)
+    saveWorkbook(exc)
+    
+    ### R squared
+    
+    createSheet(exc,'Rsquared')
+    saveWorkbook(exc)
+    input <- r2_bancofim_v1
+    writeWorksheet(exc, input, sheet ='Rsquared',header=T,rownames = T, startRow = 1, startCol = 2)
+    saveWorkbook(exc)
+    #drop_upload(fileName)
+    #### Reliability CFA
+    
+    createSheet(exc,'ReliabilityCFA')
+    saveWorkbook(exc)
+    rel_aux<-reliability(modelo_partial[[melhor]])
+    input <- data.frame(Estat=row.names(rel_aux),rel_aux) 
+    writeWorksheet(exc, input, 
+                   sheet ='ReliabilityCFA',header=T,rownames = T, startRow = 1, startCol = 2)
+    
+    
+    
+    
+    input2<-data.frame(reliabilityL2(modelo_final_final,segunda_ordem))
+    input3<-data.frame(cbind(CR=row.names(input2),segunda_ordem,est=(input2[,1])))
+    input3$est<-as.numeric(as.character(input3$est))
+    
+    writeWorksheet(exc, input3, 
+                   sheet ='ReliabilityCFA',header=T,rownames = T, startRow = nrow(input)+7, startCol = 2)
+    
+    modelo_partial = NULL
+    ##############
+    saveWorkbook(exc)
+    
+    
+    
+    ### Impactos
+    
+    createSheet(exc,'Impactos')
+    saveWorkbook(exc)
+    input <- est_modelo_impacto[order(est_modelo_impacto$lhs),]
+    
+    
+    writeWorksheet(exc, input, sheet ='Impactos',header=T,rownames = T, startRow = 1, startCol = 2)
+    saveWorkbook(exc)
+    
+    ## Diferenca entre variaveis entrada/saida
+    difference<-NULL
+    difference <- getDifference(difference)
+    difference2<-NULL
+    # difference2 <-data.frame(codigo=unique(unlist(list(difference, variaveis_PROBLEMA_MATRIZ))))
+    # difference2$codigo<-as.character(difference2$codigo)
+    difference2<-as.data.frame(difference)
+    difference2$difference<-as.character(difference2$difference)
+    var_labels2<-var_labels
+    var_labels2$codigo<-as.character(var_labels2$codigo)
+    
+    
+    var_fora<-merge(difference2, var_labels2, all.x=T, by.x="difference", by.y = "codigo")
+    colnames(var_fora)[1]<-("VariaveisDeFora")
+    
+    createSheet(exc,'VarFora')
+    saveWorkbook(exc)
+    input <- var_fora
+    writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
+    saveWorkbook(exc)
+    drop_upload(fileName, path = "FPB")
+    
+    resumo_modelo = NULL
+    r2_bancofim_v1 = NULL
+    modelo_final_final = NULL
+    est_modelo_impacto = NULL
+    var_fora = NULL
+    modelo_partial = NULL
+    est_modelo_final_reg_val = NULL
+    input = NULL
+    
   }
 }
-save.image("unp.RData")
-history("unp.Rhistory")
+
+save.image("FG.RData")
+history("FG.Rhistory")
+
 Fim_Sintaxe_SEM<-Sys.time()
 tempo_total<-Fim_Sintaxe_SEM - TempoTotal
 Fim_Sintaxe_SEM - TempoTotal
@@ -1759,5 +2030,3 @@ indiceTempos2 <- indiceTempos2 +1
 ################################################################################################################################################################################################################
 ################################################################################################################################################################################################################
 ################################################################################################################################################################################################################
-
-
