@@ -357,8 +357,6 @@ data_raw <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A
                       use.value.labels = F,
                       use.missings = T)
 
-data_raw <- data_raw[which(data_raw$ANO_RESP == 2017),]
-
 ## baixar os dados com labels:
 
 data_value_labels <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
