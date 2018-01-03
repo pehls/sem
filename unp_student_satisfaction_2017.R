@@ -1537,7 +1537,7 @@ for(q in 1:length(quebras)){
   plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
   abline(h=0.5,col="red")
   invisible(dev.off())
-  drop_upload(fileGraph)
+  drop_upload(fileGraph, path = "unp")
   
   
   ### Estatisticas resumo modelo
@@ -1610,7 +1610,7 @@ for(q in 1:length(quebras)){
   input <- var_fora
   writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
   saveWorkbook(exc)
-  drop_upload(fileName)
+  drop_upload(fileName, path = "unp")
   
   resumo_modelo = NULL
   r2_bancofim_v1 = NULL
