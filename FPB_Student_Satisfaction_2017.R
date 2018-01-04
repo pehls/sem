@@ -553,7 +553,8 @@ if (length(variaveis_lat) > 0) {
     modelo<-substr(modelo, 1, nchar(modelo)-2)
     modelo<-paste(va_lt[i], modelo,"\n")
     model_completo<-paste(model_completo, modelo)
-    
+    print(lev)
+    print(model_completo)
   }
   ## dividir variáveis
   pegar1<-NULL
@@ -605,7 +606,8 @@ for(j in 1:length(indices_colunas)){
   j<-indices_colunas[i]
   data_raw[,j] <-  as.numeric(as.character(data_raw[,j]))
 }
-
+print(lev)
+print(model_completo)
 #######################################################################
 
 ### ATENCAO: CASO NAO QUEIRAMOS INPUTAR DADOS PARA ALGUMA VARIAVEL ###
