@@ -985,27 +985,27 @@ for(q in 1:length(quebras)){
       }
       
       
-      HS.model<-NULL
       
-      for(i in 1:length(varia)){
-        
-        va_lt<-NULL
-        
-        va_lt[i]<-paste(names(varia)[i],"=~")
-        
-        modelo<-NULL
-        var_lat<-(paste(unlist(varia[[i]]),"+"))
-        modelo<-paste(var_lat, collapse = " ")
-        modelo<-substr(modelo, 1, nchar(modelo)-2)
-        modelo<-paste(va_lt[i], modelo,"\n")
-        HS.model<-paste(HS.model, modelo)
-        
-      }
-      va_lt<-NULL
       
       
     }
+    HS.model<-NULL
     
+    for(i in 1:length(varia)){
+      
+      va_lt<-NULL
+      
+      va_lt[i]<-paste(names(varia)[i],"=~")
+      
+      modelo<-NULL
+      var_lat<-(paste(unlist(varia[[i]]),"+"))
+      modelo<-paste(var_lat, collapse = " ")
+      modelo<-substr(modelo, 1, nchar(modelo)-2)
+      modelo<-paste(va_lt[i], modelo,"\n")
+      HS.model<-paste(HS.model, modelo)
+      
+    }
+    va_lt<-NULL
     
     fit_aux<-NULL
     

@@ -816,27 +816,27 @@ for(q in 1:length(quebras)){
       }
       
       
-      HS.model<-NULL
       
-      for(i in 1:length(varia)){
-        
-        va_lt<-NULL
-        
-        va_lt[i]<-paste(names(varia)[i],"=~")
-        
-        modelo<-NULL
-        var_lat<-(paste(unlist(varia[[i]]),"+"))
-        modelo<-paste(var_lat, collapse = " ")
-        modelo<-substr(modelo, 1, nchar(modelo)-2)
-        modelo<-paste(va_lt[i], modelo,"\n")
-        HS.model<-paste(HS.model, modelo)
-        
-      }
       
       
     }
     
+    HS.model<-NULL
     
+    for(i in 1:length(varia)){
+      
+      va_lt<-NULL
+      
+      va_lt[i]<-paste(names(varia)[i],"=~")
+      
+      modelo<-NULL
+      var_lat<-(paste(unlist(varia[[i]]),"+"))
+      modelo<-paste(var_lat, collapse = " ")
+      modelo<-substr(modelo, 1, nchar(modelo)-2)
+      modelo<-paste(va_lt[i], modelo,"\n")
+      HS.model<-paste(HS.model, modelo)
+      
+    }
     fit_aux<-NULL
     
     fit_aux <- cfa(HS.model,
