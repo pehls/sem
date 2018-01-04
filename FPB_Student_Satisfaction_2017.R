@@ -1457,6 +1457,8 @@ for(q in 1:length(quebras)){
       bic[z]<-fitMeasures(modelo_partial[[z]], "bic")
       print(bic[z])
       
+      #############teste de retrada da string################
+      modelofinal <- stringr::str_extract(modelofinal, "infra =~    campus    +    classroom    +    it_labs    +    specific_labs    +    library    +    blackboard    \n")
       #z<-z+1  
       #modelo_partial[[z]]<-cfa_GSP
       modelo_name[[z]]<-modelofinal
