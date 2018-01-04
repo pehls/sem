@@ -397,8 +397,8 @@ inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_
 image=~IMG_01_IMG_01_01+IMG_01_IMG_01_02+IMG_01_IMG_01_03
 ##
 infra=~campus+classroom+it_labs+specific_labs+library+blackboard
-SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+disc_online
-SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+disc_online+SAT_00_02
+SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online
+SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online+SAT_00_02
 NPS_01_01~SAT_00_01+image'
 
 constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online")
