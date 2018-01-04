@@ -395,7 +395,7 @@ comunic=~COMM_01_COMM_01_01+COMM_01_COMM_01_01.0+COMM_01_COMM_01_01.1+COMM_01_CO
 std_services=~SSERV_01_SSERV_01_01+SSERV_01_SSERV_01_02+SSERV_01_SSERV_01_03+SSERV_01_SSERV_01_04
 inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_04+INTL_01_INTL_01_05+INTL_01_INTL_01_06+INTL_01_INTL_01_07
 image=~IMG_01_IMG_01_01+IMG_01_IMG_01_02+IMG_01_IMG_01_03
-##
+#
 infra=~campus+classroom+it_labs+specific_labs+library+blackboard
 SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online
 SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online+SAT_00_02
@@ -404,6 +404,13 @@ NPS_01_01~SAT_00_01+image'
 constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online")
 var_dep_eq<-c("SAT_00_02","SAT_00_01","NPS_01_01")
 segunda_ordem<-c("infra")
+
+
+soh_val<-NULL
+soh_val<-sapply(strsplit(model_completo, split= "\\#"),
+                function(x) x[length(x)])
+print(lev)
+print(soh_val)
 
 ######################## FIM DA ATUALIZACAO DO PREENCHIMENTO #####################################
 ##################################################################################################
@@ -459,11 +466,13 @@ for(i in 1:length(pegar3)){
 lista_variaveis<-NULL
 lista_variaveis<-unlist(pegar5)
 
+### comeca a verificar se as varivaveis observadas do modelo estao no banco de dados
+
 
 variaveis_lat<- setdiff(lista_variaveis, colnames(data_value_labels))
 variaveis_lat<- setdiff(variaveis_lat, constructs)
 
-if (length(variaveis_lat > 0)) {
+if (length(variaveis_lat) > 0) {
   latent<-NULL
   latent<-unlist(strsplit(model_completo,
                           split=c("\n")))
@@ -578,6 +587,7 @@ if (length(variaveis_lat > 0)) {
   lista_variaveis<-NULL
   lista_variaveis<-unlist(pegar5)
   lista_variaveis <- trimws(lista_variaveis)
+  model_completo <- paste(model_completo, soh_val,sep = " #")
 }
 
 variaveis_do_modelo<-Reduce(intersect, list(lista_variaveis,colnames(data_raw)))
@@ -810,9 +820,7 @@ for(q in 1:length(quebras)){
     
     #### o simbolo "=~" significa que a a variavel latente y se manifesta pelas variaveis
     #### observadas x1, x2,...xk
-    soh_val<-NULL
-    soh_val<-sapply(strsplit(model_completo, split= "\\#"),
-                    function(x) x[length(x)])
+    
     
     HS.model<-NULL
     HS.model <- substr(model_completo,1,
@@ -1491,10 +1499,15 @@ for(q in 1:length(quebras)){
       aval_multi1<-NULL
       aval_multi2<-NULL
       
+      print("Ainda nao saiu do while")
+      print(lev)
+      print(soh_val)
       
     }
     
+    
     print("saiu do while da CFA")
+    
     if(z>1){
       for(i in 2:(z)){
         fit_modelo_partial<- NULL
@@ -1531,6 +1544,10 @@ for(q in 1:length(quebras)){
     
     ## soh para o caso de detectar mais de 0 constructos que ficaram de fora
     
+    print(" saiu do while e vai ver se tem constructos diferentes")
+    print(lev)
+    print(soh_val)
+    
     if(length(diferentes)>0){
       ## tirando o constructo
       tirar_val<-strsplit(soh_val, split=diferente, fixed=F)
@@ -1547,6 +1564,11 @@ for(q in 1:length(quebras)){
     
     
     modelo_completo2<-paste(modelo_name[[melhor]], soh_val, sep = "#")
+    
+    print(" saiu do while e vai ver se tem constructos diferentes")
+    print(lev)
+    print(soh_val)
+    
     
     rodar_modelo2_aux<-NULL
     rodar_modelo2_aux<-sem(modelo_completo2,  
