@@ -410,7 +410,7 @@ soh_val<-NULL
 soh_val<-sapply(strsplit(model_completo, split= "\\#"),
                 function(x) x[length(x)])
 print(lev)
-print(soh_val)
+print(model_completo)
 
 ######################## FIM DA ATUALIZACAO DO PREENCHIMENTO #####################################
 ##################################################################################################
@@ -436,6 +436,10 @@ pegar1<-unlist(strsplit(model_completo,
                         split=c("\n")))
 pegar2<-NULL
 pegar2<-grep("=~", pegar1, value=T)
+#### vamos tirar a ultima formula ("infra=~campus+classroom+it_labs+specific_labs+library+blackboard" ) 
+#### que não pertence ao conjunto de constructos
+pegar2 <- pegar2[-length(pegar2)]
+
 
 # agora vamos dividir entre constuctos e 'preditores'
 
