@@ -1807,7 +1807,7 @@ for(q in 1:length(quebras)){
     
     #dir.create(nivel_label)
     #pasta_output<-paste(export, nivel_label,sep="\\")
-    fileName<-paste("FPBTeste",paste(nivel_label,"resultados_SEM.xlsx",sep="_"))
+    fileName<-paste("2FPBTeste",paste(nivel_label,"resultados_SEM.xlsx",sep="_"))
     #fileXls <- paste(pasta_output,fileName,sep='\\')
     fileXls <- fileName
     unlink(fileXls, recursive = FALSE, force = FALSE)
@@ -1822,7 +1822,7 @@ for(q in 1:length(quebras)){
     saveWorkbook(exc)
     
     ### Analise Fatorial Confirmatoria Diagnostico Stepwise
-    fileGraph <- paste("FPBTeste",paste(nivel_label,'graph.png',sep="_"))
+    fileGraph <- paste("2FPBTeste",paste(nivel_label,'graph.png',sep="_"))
     png(filename = fileGraph, width = 800, height = 600)
     par(mfrow=c(2,3))
     plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
@@ -1936,8 +1936,8 @@ for(q in 1:length(quebras)){
 }
 write(quebras_excluidas, file="quebras_excluidas.txt")
 drop_upload("quebras_excluidas.txt", path = "FPB")
-save.image("FBP.RData")
-history("FBP.Rhistory")
+save.image("FBP2.RData")
+history("FBP2.Rhistory")
 
 Fim_Sintaxe_SEM<-Sys.time()
 tempo_total<-Fim_Sintaxe_SEM - TempoTotal
