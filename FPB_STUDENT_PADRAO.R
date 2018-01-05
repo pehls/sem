@@ -1916,10 +1916,10 @@ for(q in 1:length(quebras)){
     writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
     saveWorkbook(exc)
     
-    createSheet(exc,'VarRetiradasPorT2B/Multicolinearidade')
+    createSheet(exc,'VarRetT2B')
     saveWorkbook(exc)
     input <- var_retirada_porT2B
-    writeWorksheet(exc, input, sheet ='VarRetiradasPorT2B/Multicolinearidade',header=T,rownames = T, startRow = 1, startCol = 2)
+    writeWorksheet(exc, input, sheet ='VarRetT2B',header=T,rownames = T, startRow = 1, startCol = 2)
     saveWorkbook(exc)
     drop_upload(fileName, path = "FPB")
     
