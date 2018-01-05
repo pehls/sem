@@ -402,8 +402,8 @@ NPS_01_01~SAT_00_01+image'
 constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online")
 var_dep_eq<-c("SAT_00_02","SAT_00_01","NPS_01_01")
 segunda_ordem<-c("infra")
-
-
+quebras_excluidas <- NULL
+var_retirada_porT2B <- NULL
 ######################## FIM DA ATUALIZACAO DO PREENCHIMENTO #####################################
 ##################################################################################################
 
@@ -631,6 +631,8 @@ for(q in 1:length(quebras)){
     n_obs<-nrow(data)
     if (n_obs < 50) {
       print(paste(paste(nivel_label, " Nobs="),n_obs))
+      ####### vamos salvar a quebra/nivel_label que teve poucas obs #####
+      quebras_excluidas <- paste(quebras_excluidas, quebra,"-", nivel_label, ", Nobs=",n_obs, "\n")
       break
     }
     print(nivel_label)
@@ -742,7 +744,9 @@ for(q in 1:length(quebras)){
         set.seed(1234)
         sorteio_aux<-sample(c(1,2),1)
         t2b_var2$retirar<-as.character(t2b_var2[1,sorteio_aux])
-        
+        #################### gravar a variavel acima em um vetor, ########################
+        #################### gravar em excel #############################################
+        var_retirada_porT2B <- paste(var_retirada_porT2B, "-", as.character(t2b_var2[1,sorteio_aux]))
       }else{
         
         
@@ -1911,6 +1915,12 @@ for(q in 1:length(quebras)){
     input <- var_fora
     writeWorksheet(exc, input, sheet ='VarFora',header=T,rownames = T, startRow = 1, startCol = 2)
     saveWorkbook(exc)
+    
+    createSheet(exc,'VarRetiradasPorT2B/Multicolinearidade')
+    saveWorkbook(exc)
+    input <- var_retirada_porT2B
+    writeWorksheet(exc, input, sheet ='VarRetiradasPorT2B/Multicolinearidade',header=T,rownames = T, startRow = 1, startCol = 2)
+    saveWorkbook(exc)
     drop_upload(fileName, path = "FPB")
     
     resumo_modelo = NULL
@@ -1924,7 +1934,8 @@ for(q in 1:length(quebras)){
     
   }
 }
-
+write(quebras_excluidas, file="quebras_excluidas.txt")
+drop_upload("quebras_excluidas.txt", path = "FPB")
 save.image("FBP.RData")
 history("FBP.Rhistory")
 
