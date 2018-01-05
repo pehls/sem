@@ -1554,7 +1554,7 @@ for(q in 1:length(quebras)){
       modelo_reg<-NULL
       
       for(i in 1:length(pegar_reg5)){
-        
+        #i <- 2
         va_lt<-NULL
         
         va_lt[i]<-paste(names(pegar_reg5)[i],"~")
@@ -1568,6 +1568,40 @@ for(q in 1:length(quebras)){
       }
       
       
+      ############# vamos tirar aquelas regressoes cujas variaveis independentes
+      ############# ficaram vazias
+      
+      
+      modelo_reg_aux<-strsplit(modelo_reg,
+                               split=c("\\n"))
+      
+      for(i in 1:length(modelo_reg_aux[[1]])){
+        modelo_reg_aux2 <- NULL
+        modelo_reg_aux2<-strsplit(trimws(modelo_reg_aux[[1]][i]),
+                                         split=c("\\~"))
+        
+        
+        if(length(modelo_reg_aux2[[1]])<2){
+          modelo_reg_aux[[1]][i]<-NA
+        }
+        
+        
+        
+      }
+      modelo_reg_aux <- modelo_reg_aux[[1]][complete.cases(modelo_reg_aux)]
+      modelo2<-NULL
+      modelo_reg2 <- NULL
+      for (i in 1:length(modelo_reg_aux)) {
+        var_lat_aux2 <- NULL
+        var_lat_aux2<-(paste(unlist(modelo_reg_aux[i]),"\n"))
+        modelo2<-paste(var_lat_aux2, collapse = " ")
+        #modelo2<-substr(modelo2, 1, nchar(modelo2)-2)
+        #modelo2<-paste(var_lat_aux2[i], modelo2,"\n")
+        modelo_reg2<-paste(modelo_reg2, modelo2)
+      }
+      
+    
+      modelo_reg <- modelo_reg2
       
       modelo_completo3<-NULL
       modelo_completo3<-paste(modelo_name[[melhor]], modelo_reg)
@@ -1769,7 +1803,7 @@ for(q in 1:length(quebras)){
     
     #dir.create(nivel_label)
     #pasta_output<-paste(export, nivel_label,sep="\\")
-    fileName<-paste("FGTeste",paste(nivel_label,"resultados_SEM.xlsx",sep="_"))
+    fileName<-paste("FPBTeste",paste(nivel_label,"resultados_SEM.xlsx",sep="_"))
     #fileXls <- paste(pasta_output,fileName,sep='\\')
     fileXls <- fileName
     unlink(fileXls, recursive = FALSE, force = FALSE)
@@ -1784,7 +1818,7 @@ for(q in 1:length(quebras)){
     saveWorkbook(exc)
     
     ### Analise Fatorial Confirmatoria Diagnostico Stepwise
-    fileGraph <- paste("FGTeste",paste(nivel_label,'graph.png',sep="_"))
+    fileGraph <- paste("FPBTeste",paste(nivel_label,'graph.png',sep="_"))
     png(filename = fileGraph, width = 800, height = 600)
     par(mfrow=c(2,3))
     plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
