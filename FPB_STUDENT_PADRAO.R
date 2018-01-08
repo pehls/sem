@@ -1938,7 +1938,7 @@ for(q in 1:length(quebras)){
     input <- var_retirada_porT2B
     writeWorksheet(exc, input, sheet ='VarRetT2B',header=T,rownames = T, startRow = 1, startCol = 2)
     saveWorkbook(exc)
-    #drop_upload(fileName, path = "FPB")
+    drop_upload(fileName, path = "FPB")
     
     var_retirada_porT2B <- NULL
     resumo_modelo = NULL
@@ -1953,7 +1953,7 @@ for(q in 1:length(quebras)){
   }
 }
 write(quebras_excluidas, file="quebras_excluidas.txt")
-#drop_upload("quebras_excluidas.txt", path = "FPB")
+drop_upload("quebras_excluidas.txt", path = "FPB")
 save.image("FBP2.RData")
 history("FBP2.Rhistory")
 
