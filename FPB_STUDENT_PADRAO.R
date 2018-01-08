@@ -1376,31 +1376,31 @@ for(q in 1:length(quebras)){
     }
     
     print("saiu do while da CFA")
-    if(z>1){
-      for(i in 2:(z)){
-        fit_modelo_partial<- NULL
-        fit_modelo_partial<-fitMeasures(modelo_partial[[i]])
-        alfa_cronbach[i]<-reliability(modelo_partial[[i]])[1,ncol(reliability(modelo_partial[[i]]))]
-        razao_chisq[i]<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
-        aic[i]<-fit_modelo_partial["aic"]
-        rmsea[i]<-fit_modelo_partial["rmsea"]
-        cfi[i]<-fit_modelo_partial["cfi"]
-        ave_min[i]<-min(reliability(modelo_partial[[i]])[5,])
-        ## matriz de validade discriminante
-        mat_validDis<-inspect(modelo_partial[[i]], "cor.lv")
-        diag(mat_validDis)<-NA
-        valid_discr[i]<-sum(mat_validDis>0.95, na.rm=T)
-      }
-      
-      
-      ###pegar o modelo com maior cfi
-      
-      melhor<-which.max(cfi)
-      ## precisamos tirar os constructos que ficaram de fora:
-      ## constructos que sobraram:
-    }else{
-      melhor<-1
-    }
+    # if(z>1){
+    #   for(i in 2:(z)){
+    #     fit_modelo_partial<- NULL
+    #     fit_modelo_partial<-fitMeasures(modelo_partial[[i]])
+    #     alfa_cronbach[i]<-reliability(modelo_partial[[i]])[1,ncol(reliability(modelo_partial[[i]]))]
+    #     razao_chisq[i]<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
+    #     aic[i]<-fit_modelo_partial["aic"]
+    #     rmsea[i]<-fit_modelo_partial["rmsea"]
+    #     cfi[i]<-fit_modelo_partial["cfi"]
+    #     ave_min[i]<-min(reliability(modelo_partial[[i]])[5,])
+    #     ## matriz de validade discriminante
+    #     mat_validDis<-inspect(modelo_partial[[i]], "cor.lv")
+    #     diag(mat_validDis)<-NA
+    #     valid_discr[i]<-sum(mat_validDis>0.95, na.rm=T)
+    #   }
+    #   
+    #   
+    #   ###pegar o modelo com maior cfi
+    #   
+    #   melhor<-which.max(cfi)
+    #   ## precisamos tirar os constructos que ficaram de fora:
+    #   ## constructos que sobraram:
+    # }else{
+    #   melhor<-1
+    # }
     ## funcao que identifica diferenca entre dois vetores
     outersect <- function(x, y) {
       sort(c(setdiff(x, y),
@@ -1752,24 +1752,35 @@ for(q in 1:length(quebras)){
     
     
     est_modelo_final_val_aux<-est_modelo_final2[(est_modelo_final2$op=="=~"),]
-    est_modelo_final_val_aux$interp_pred<-NA
-    est_modelo_final_val_aux$interp_pred[is.na(est_modelo_final_val_aux$interp_pred) & est_modelo_final_val_aux$op=="=~"]<-paste("O aumento de uma unidade na satisfacao da variavel latente",
-                                                                                                                                 est_modelo_final_val_aux$label_lhs,"implica no aumento de",
-                                                                                                                                 round(est_modelo_final_val_aux$est,4), "unidades na variavel observada",
-                                                                                                                                 est_modelo_final_val_aux$label_rhs)
-    
+    # est_modelo_final_val_aux$interp_pred<-NA
+    # est_modelo_final_val_aux$interp_pred[is.na(est_modelo_final_val_aux$interp_pred) & est_modelo_final_val_aux$op=="=~"]<-paste("O aumento de uma unidade na satisfacao da variavel latente",
+    #                                                                                                                              est_modelo_final_val_aux$label_lhs,"implica no aumento de",
+    #                                                                                                                              round(est_modelo_final_val_aux$est,4), "unidades na variavel observada",
+    #                                                                                                                              est_modelo_final_val_aux$label_rhs)
+    # 
     est_modelo_final_reg_aux<-est_modelo_final2[(est_modelo_final2$op=="~"),]
-    est_modelo_final_reg_aux$interp_pred<-NA
-    est_modelo_final_reg_aux$interp_pred[is.na(est_modelo_final_reg_aux$interp_pred) & est_modelo_final_reg_aux$op=="~"]<-paste("O aumento de uma unidade na satisfacao da variavel latente",
-                                                                                                                                est_modelo_final_reg_aux$label_rhs,"implica no aumento de",
-                                                                                                                                round(est_modelo_final_reg_aux$est,4), "unidades na variavel observada",
-                                                                                                                                est_modelo_final_reg_aux$label_lhs)
+    #  est_modelo_final_reg_aux$interp_pred<-NA
+    #  est_modelo_final_reg_aux$interp_pred[is.na(est_modelo_final_reg_aux$interp_pred) & est_modelo_final_reg_aux$op=="~"]<-paste("O aumento de uma unidade na satisfacao da variavel latente",
+    #                                                                                                                              est_modelo_final_reg_aux$label_rhs,"implica no aumento de",
+    #                                                                                                                              round(est_modelo_final_reg_aux$est,4), "unidades na variavel observada",
+    #                                                                                                                             est_modelo_final_reg_aux$label_lhs)
     
     est_modelo_final_reg_val<-rbind(est_modelo_final_val_aux,
                                     est_modelo_final_reg_aux)
     
+    # est_modelo_final_reg_val<-est_modelo_final_reg_val %>%
+    #   select(lhs,op,rhs,est,pvalue,interp_pred)
+    # 
+    
+    est_modelo_final_reg_val<-merge(est_modelo_final_reg_val,
+                              df.top2box,
+                              by.x="rhs",
+                              by.y="variaveis", all.x=T)
+    
+    
     est_modelo_final_reg_val<-est_modelo_final_reg_val %>%
-      select(lhs,op,rhs,est,pvalue,interp_pred)
+      select(lhs,op,rhs,est,pvalue,T2B_result)
+    
     
     r2_bancofim<-est_modelo_final2[est_modelo_final2$op=="r2",]
     r2_bancofim<-r2_bancofim[,colSums(is.na(r2_bancofim))<nrow(r2_bancofim)]
@@ -1783,16 +1794,16 @@ for(q in 1:length(quebras)){
     # impacto
     
     
-    est_modelo_impacto_aux<-est_modelo_final2[(est_modelo_final2$op=="~" | est_modelo_final2$op=="=~"),
-                                              c("lhs", "label_lhs", "op", "rhs", "label_rhs","std.all")]
+    # est_modelo_impacto_aux<-est_modelo_final2[(est_modelo_final2$op=="~" | est_modelo_final2$op=="=~"),
+    #                                           c("lhs", "label_lhs", "op", "rhs", "label_rhs","std.all")]
     
-    est_modelo_impacto<-merge(est_modelo_impacto_aux,
-                              df.top2box,
-                              by.x="rhs",
-                              by.y="variaveis", all.x=T)
-    
-    est_modelo_impacto<-est_modelo_impacto[c("lhs", "label_lhs", "op", "rhs", "label_rhs","std.all","T2B_result")]
-    est_modelo_impacto$T2B_result<-as.numeric(as.character(est_modelo_impacto$T2B_result))
+    # est_modelo_impacto<-merge(est_modelo_impacto_aux,
+    #                           df.top2box,
+    #                           by.x="rhs",
+    #                           by.y="variaveis", all.x=T)
+    # 
+    # est_modelo_impacto<-est_modelo_impacto[c("lhs", "label_lhs", "op", "rhs", "label_rhs","std.all","T2B_result")]
+    # est_modelo_impacto$T2B_result<-as.numeric(as.character(est_modelo_impacto$T2B_result))
     # }
     #}
     ################################################################################################################################################################################################################
@@ -1815,29 +1826,29 @@ for(q in 1:length(quebras)){
     
     ## Estimativas na planilha estimativas
     
-    createSheet(exc,'Estimativas')
+    createSheet(exc,'Cargas')
     saveWorkbook(exc)
     input <- est_modelo_final_reg_val
-    writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
+    writeWorksheet(exc, input, sheet ='Cargas', startRow = 1, startCol = 2)
     saveWorkbook(exc)
     
     ### Analise Fatorial Confirmatoria Diagnostico Stepwise
-    fileGraph <- paste("2FPBTeste",paste(nivel_label,'graph.png',sep="_"))
-    png(filename = fileGraph, width = 800, height = 600)
-    par(mfrow=c(2,3))
-    plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
-    abline(h=5,col="blue")
-    plot(aic, main="Quanto menor, melhor", type="l")
-    plot(rmsea, ylim=c(0.01,0.1),main="Quanto menor melhor", type="l")
-    abline(h=0.085,col="red")
-    plot(cfi, ylim=c(0.5,1),main="Quanto maior melhor", type="l")
-    abline(h=0.7,col="red")
-    plot(alfa_cronbach, main="Quanto maior melhor", 
-         ylim=c(0.5,1), type="l")
-    plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
-    abline(h=0.5,col="red")
-    invisible(dev.off())
-    drop_upload(fileGraph, path = "FPB")
+    # fileGraph <- paste("2FPBTeste",paste(nivel_label,'graph.png',sep="_"))
+    # png(filename = fileGraph, width = 800, height = 600)
+    # par(mfrow=c(2,3))
+    # plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
+    # abline(h=5,col="blue")
+    # plot(aic, main="Quanto menor, melhor", type="l")
+    # plot(rmsea, ylim=c(0.01,0.1),main="Quanto menor melhor", type="l")
+    # abline(h=0.085,col="red")
+    # plot(cfi, ylim=c(0.5,1),main="Quanto maior melhor", type="l")
+    # abline(h=0.7,col="red")
+    # plot(alfa_cronbach, main="Quanto maior melhor", 
+    #      ylim=c(0.5,1), type="l")
+    # plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
+    # abline(h=0.5,col="red")
+    # invisible(dev.off())
+    # drop_upload(fileGraph, path = "FPB")
     
     
     ### Estatisticas resumo modelo
@@ -1887,13 +1898,13 @@ for(q in 1:length(quebras)){
     
     ### Impactos
     
-    createSheet(exc,'Impactos')
-    saveWorkbook(exc)
-    input <- est_modelo_impacto[order(est_modelo_impacto$lhs),]
+    # createSheet(exc,'Impactos')
+    # saveWorkbook(exc)
+    # input <- est_modelo_impacto[order(est_modelo_impacto$lhs),]
+    # 
     
-    
-    writeWorksheet(exc, input, sheet ='Impactos',header=T,rownames = T, startRow = 1, startCol = 2)
-    saveWorkbook(exc)
+    # writeWorksheet(exc, input, sheet ='Impactos',header=T,rownames = T, startRow = 1, startCol = 2)
+    # saveWorkbook(exc)
     
     ## Diferenca entre variaveis entrada/saida
     difference<-NULL
