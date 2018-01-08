@@ -1,28 +1,3 @@
-install.packages("lavaan")
-
-install.packages("foreign")
-
-install.packages("semTools")
-
-install.packages("rJava")
-
-install.packages("XLConnect")
-
-install.packages("survey")
-
-install.packages("tidyverse")
-
-install.packages("doParallel")
-
-install.packages("rdrop2")
-
-install.packages("RCurl")
-
-install.packages("httpuv")
-
-install.packages("matrixcalc")
-
-install.packages("reshape2")
 
 library(httpuv)
 library(lavaan)
@@ -55,7 +30,7 @@ dl_from_dropbox <- function(x, key) {
   close(con)
   message(noquote(paste(x, "read into", getwd())))
 }
-dl_from_dropbox("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav","1pkzr0q6g3x3pg9")
+dl_from_dropbox("FG_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav","y64l07jmgsz19qp")
 ##################---- Arquivos para autorizar upload no dropbox -----##################
 ##############-----Devem ser atualizados para outra conta do dropbox------##############
 dl_from_dropbox(".httr-oauth","1j0froxvx83quxd")
@@ -351,20 +326,21 @@ no_cores <- (detectCores() -1)
 
 # baixar banco de dados sem labels
 
-data_raw <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
+data_raw <- read.spss("FG_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
                       to.data.frame=T,
                       header=T,
                       use.value.labels = F,
                       use.missings = T)
 
+data_raw <- data_raw[which(data_raw$ANO_RESP == 2017),]
+
 ## baixar os dados com labels:
 
-data_value_labels <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
+data_value_labels <- read.spss("FG_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
                                to.data.frame=T,
                                header=T,
                                use.value.labels = T,
                                use.missings = T)
-
 
 ##   diretorio para onde exportar os resultados
 export<-"/home/gabrielpehls/sem/outputs"
@@ -374,29 +350,28 @@ export<-"/home/gabrielpehls/sem/outputs"
 quebras<-c("VERTICAL", "CAMPUS", "DEGREE", "INGRESSO","Finished")
 
 
-### modelo descrito completo
 model_completo <- '
 campus=~INF_01_INF_01_01+INF_01_INF_01_02+INF_01_INF_01_04+INF_01_INF_01_06+INF_01_INF_01_08+INF_01_INF_01_09+INF_01_INF_01_11+INF_01_INF_01_13+INF_01_INF_01_15+INF_01_INF_01_12
 classroom=~INF_02_INF_02_03+INF_02_INF_02_04+INF_02_INF_02_05+INF_02_INF_02_06+INF_02_INF_02_07
-it_labs=~INF_03_INF_03_01+INF_03_INF_03_02+INF_03_INF_03_03+INF_03_INF_03_04+INF_03_INF_03_06+INF_03_INF_03_07
+it_labs=~INF_03_INF_03_01+INF_03_INF_03_02+INF_03_INF_03_03+INF_03_INF_03_04+INF_03_INF_03_06
 specific_labs=~INF_04_INF_04_01+INF_04_INF_04_02+INF_04_INF_04_03+INF_04_INF_04_06
 library=~INF_05_INF_05_02+INF_05_INF_05_04+INF_05_INF_05_10+INF_05_INF_05_09+INF_05_INF_05_07
 blackboard=~INF_06_INF_06_01+INF_06_INF_06_02+INF_06_INF_06_04+INF_06_INF_06_07+INF_06_INF_06_08
-faculty=~PROF_02_PROF_02_01+PROF_02_PROF_02_02+PROF_02_PROF_02_03+PROF_02_PROF_02_04+PROF_02_PROF_02_05+PROF_02_PROF_02_06+PROF_02_PROF_02_07+PROF_02_PROF_02_08+PROF_02_PROF_02_20
-coord=~COORD_02_COORD_02_01+COORD_02_COORD_02_02+COORD_02_COORD_02_03+COORD_02_COORD_02_04+COORD_02_COORD_02_20
+faculty=~PROF_02_PROF_02_01+PROF_02_PROF_02_02+PROF_02_PROF_02_03+PROF_02_PROF_02_04+PROF_02_PROF_02_05+PROF_02_PROF_02_06+PROF_02_PROF_02_07+PROF_02_PROF_02_08
+coord=~COORD_02_COORD_02_01+COORD_02_COORD_02_02+COORD_02_COORD_02_03+COORD_02_COORD_02_04
 call=~CALL_01_CALL_01_01+CALL_01_CALL_01_02+CALL_01_CALL_01_03+CALL_01_CALL_01_04
-employ=~EMPL_02_EMPL_02_01+EMPL_02_EMPL_02_02+EMPL_02_EMPL_02_03+EMPL_02_EMPL_02_04+EMPL_02_EMPL_02_05
+employ=~EMPL_02_EMPL_02_01+EMPL_02_EMPL_02_02+EMPL_02_EMPL_02_03+EMPL_02_EMPL_02_04+EMPL_02_EMPL_02_05+EMPL_02_EMPL_02_8
 financial_serv=~FSERV_01_FSERV_01_01+FSERV_01_FSERV_01_02+FSERV_01_FSERV_01_03+FSERV_01_FSERV_01_04
 program=~PROG_02_PROG_02_01+PROG_02_PROG_02_02+PROG_02_PROG_02_03+PROG_02_PROG_02_04+PROG_02_PROG_02_05
 disc_online=~ELEAR_02_ELEAR_02_01+ELEAR_02_ELEAR_02_02+ELEAR_02_ELEAR_02_03+ELEAR_02_ELEAR_02_04+ELEAR_02_ELEAR_02_05
-comunic=~COMM_01_COMM_01_01+COMM_01_COMM_01_02+COMM_01_COMM_01_03+COMM_01_COMM_01_06+COMM_01_COMM_01_07
+comunic=~COMM_01_COMM_01_01+COMM_01_COMM_01_01.0+COMM_01_COMM_01_01.1+COMM_01_COMM_01_01.2+COMM_01_COMM_01_02+COMM_01_COMM_01_03+COMM_01_COMM_01_06+COMM_01_COMM_01_08
 std_services=~SSERV_01_SSERV_01_01+SSERV_01_SSERV_01_02+SSERV_01_SSERV_01_03+SSERV_01_SSERV_01_04
-inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_04+INTL_01_INTL_01_05+INTL_01_INTL_01_07
+inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_04+INTL_01_INTL_01_05+INTL_01_INTL_01_06+INTL_01_INTL_01_07
 image=~IMG_01_IMG_01_01+IMG_01_IMG_01_02+IMG_01_IMG_01_03
-#
+##
 infra=~campus+classroom+it_labs+specific_labs+library+blackboard
-SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online
-SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online+SAT_00_02
+SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+disc_online
+SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+financial_serv+employ+call+coord+disc_online+SAT_00_02
 NPS_01_01~SAT_00_01+image'
 
 constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online")
@@ -1582,7 +1557,7 @@ for(q in 1:length(quebras)){
       for(i in 1:length(modelo_reg_aux[[1]])){
         modelo_reg_aux2 <- NULL
         modelo_reg_aux2<-strsplit(trimws(modelo_reg_aux[[1]][i]),
-                                         split=c("\\~"))
+                                  split=c("\\~"))
         
         
         if(length(modelo_reg_aux2[[1]])<2){
@@ -1604,7 +1579,7 @@ for(q in 1:length(quebras)){
         modelo_reg2<-paste(modelo_reg2, modelo2)
       }
       
-    
+      
       modelo_reg <- modelo_reg2
       
       modelo_completo3<-NULL
@@ -1807,7 +1782,7 @@ for(q in 1:length(quebras)){
     
     #dir.create(nivel_label)
     #pasta_output<-paste(export, nivel_label,sep="\\")
-    fileName<-paste("2FPBTeste",paste(nivel_label,"resultados_SEM.xlsx",sep="_"))
+    fileName<-paste("FG2Teste",paste(nivel_label,"resultados_SEM.xlsx",sep="_"))
     #fileXls <- paste(pasta_output,fileName,sep='\\')
     fileXls <- fileName
     unlink(fileXls, recursive = FALSE, force = FALSE)
@@ -1820,24 +1795,6 @@ for(q in 1:length(quebras)){
     input <- est_modelo_final_reg_val
     writeWorksheet(exc, input, sheet ='Estimativas', startRow = 1, startCol = 2)
     saveWorkbook(exc)
-    
-    ### Analise Fatorial Confirmatoria Diagnostico Stepwise
-    fileGraph <- paste("2FPBTeste",paste(nivel_label,'graph.png',sep="_"))
-    png(filename = fileGraph, width = 800, height = 600)
-    par(mfrow=c(2,3))
-    plot(razao_chisq,ylim=c(0,70), main="Quanto mais perto de 5 melhor", type="l")
-    abline(h=5,col="blue")
-    plot(aic, main="Quanto menor, melhor", type="l")
-    plot(rmsea, ylim=c(0.01,0.1),main="Quanto menor melhor", type="l")
-    abline(h=0.085,col="red")
-    plot(cfi, ylim=c(0.5,1),main="Quanto maior melhor", type="l")
-    abline(h=0.7,col="red")
-    plot(alfa_cronbach, main="Quanto maior melhor", 
-         ylim=c(0.5,1), type="l")
-    plot(ave_min, main="Quanto maior melhor", ylim=c(0.1,1), type="l")
-    abline(h=0.5,col="red")
-    invisible(dev.off())
-    drop_upload(fileGraph, path = "FPB")
     
     
     ### Estatisticas resumo modelo
@@ -1921,7 +1878,7 @@ for(q in 1:length(quebras)){
     input <- var_retirada_porT2B
     writeWorksheet(exc, input, sheet ='VarRetT2B',header=T,rownames = T, startRow = 1, startCol = 2)
     saveWorkbook(exc)
-    drop_upload(fileName, path = "FPB")
+    drop_upload(fileName, path = "FG2Teste")
     
     var_retirada_porT2B <- NULL
     resumo_modelo = NULL
@@ -1935,10 +1892,10 @@ for(q in 1:length(quebras)){
     
   }
 }
-write(quebras_excluidas, file="quebras_excluidas.txt")
-drop_upload("quebras_excluidas.txt", path = "FPB")
-save.image("FBP2.RData")
-history("FBP2.Rhistory")
+write(quebras_excluidas, file="FG2Testequebras_excluidas.txt")
+drop_upload("FG2Testequebras_excluidas.txt", path = "FG2Teste")
+save.image("FG2Teste.RData")
+history("FG2Teste.Rhistory")
 
 Fim_Sintaxe_SEM<-Sys.time()
 tempo_total<-Fim_Sintaxe_SEM - TempoTotal
