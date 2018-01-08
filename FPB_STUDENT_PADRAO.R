@@ -78,8 +78,14 @@ getDifference <- function (difference) {
     for( j in 1:length(parametros[i][[1]])) {
       parametros[i][[1]][j] <- trimws(parametros[i][[1]][j])
     }
+    
     ### 
-    difference  <- unique(unlist(c(difference, setdiff(pegar5[[i]], parametros[i][[1]]))))
+    if (sum(is.na(parametros[i][[1]]))>0) {
+      difference  <- unique(unlist(c(difference, setdiff(pegar5[[i]], parametros[i][[1]]))))
+      
+    }else{
+      difference<-0
+    }
     
   }
   return(difference)
@@ -395,11 +401,11 @@ inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_
 image=~IMG_01_IMG_01_01+IMG_01_IMG_01_02+IMG_01_IMG_01_03
 #
 infra=~campus+classroom+it_labs+specific_labs+library+blackboard
-SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online
-SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online+SAT_00_02
+SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online+faculty
+SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online+faculty+SAT_00_02
 NPS_01_01~SAT_00_01+image'
 
-constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online")
+constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online","faculty")
 var_dep_eq<-c("SAT_00_02","SAT_00_01","NPS_01_01")
 segunda_ordem<-c("infra")
 quebras_excluidas <- NULL
@@ -614,7 +620,7 @@ for(q in 1:length(quebras)){
   
   
   for(lev in 1:length(niv)){  
-    #lev <- 2
+    #lev <- 1
     ###  nivel 'niv' da quebra 'q'
     nivel<-levels(as.factor(data_raw[,quebras[q]]))[lev]
     ## Nome do nivel da quebra
@@ -1376,31 +1382,31 @@ for(q in 1:length(quebras)){
     }
     
     print("saiu do while da CFA")
-    # if(z>1){
-    #   for(i in 2:(z)){
+     if(z>1){
+       for(i in 2:(z)){
     #     fit_modelo_partial<- NULL
     #     fit_modelo_partial<-fitMeasures(modelo_partial[[i]])
     #     alfa_cronbach[i]<-reliability(modelo_partial[[i]])[1,ncol(reliability(modelo_partial[[i]]))]
     #     razao_chisq[i]<-fit_modelo_partial["chisq"]/fit_modelo_partial["df"]
     #     aic[i]<-fit_modelo_partial["aic"]
     #     rmsea[i]<-fit_modelo_partial["rmsea"]
-    #     cfi[i]<-fit_modelo_partial["cfi"]
+         cfi[i]<-fit_modelo_partial["cfi"]
     #     ave_min[i]<-min(reliability(modelo_partial[[i]])[5,])
     #     ## matriz de validade discriminante
     #     mat_validDis<-inspect(modelo_partial[[i]], "cor.lv")
     #     diag(mat_validDis)<-NA
     #     valid_discr[i]<-sum(mat_validDis>0.95, na.rm=T)
-    #   }
+       }
     #   
     #   
     #   ###pegar o modelo com maior cfi
     #   
-    #   melhor<-which.max(cfi)
+       melhor<-which.max(cfi)
     #   ## precisamos tirar os constructos que ficaram de fora:
     #   ## constructos que sobraram:
-    # }else{
-    #   melhor<-1
-    # }
+     }else{
+       melhor<-1
+     }
     ## funcao que identifica diferenca entre dois vetores
     outersect <- function(x, y) {
       sort(c(setdiff(x, y),
@@ -1932,7 +1938,7 @@ for(q in 1:length(quebras)){
     input <- var_retirada_porT2B
     writeWorksheet(exc, input, sheet ='VarRetT2B',header=T,rownames = T, startRow = 1, startCol = 2)
     saveWorkbook(exc)
-    drop_upload(fileName, path = "FPB")
+    #drop_upload(fileName, path = "FPB")
     
     var_retirada_porT2B <- NULL
     resumo_modelo = NULL
@@ -1947,7 +1953,7 @@ for(q in 1:length(quebras)){
   }
 }
 write(quebras_excluidas, file="quebras_excluidas.txt")
-drop_upload("quebras_excluidas.txt", path = "FPB")
+#drop_upload("quebras_excluidas.txt", path = "FPB")
 save.image("FBP2.RData")
 history("FBP2.Rhistory")
 
