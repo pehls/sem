@@ -1465,7 +1465,9 @@ for(q in 1:length(quebras)){
         tirar_val[[1]][2]<-sub('.', '', tirar_val[[1]][2])
       }
       soh_val<-paste(tirar_val[[1]],collapse="")
-      
+      ### o constructo retirado pode ainda ser variavel latente de outro constructo; ####
+      ###deve, portanto, não estar incluido em soh_val. a variavel diferentes possui ####
+      ###quem deve ser retirado de soh_val.                                          ####
     }
     
     
