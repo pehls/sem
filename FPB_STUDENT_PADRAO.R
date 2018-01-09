@@ -377,7 +377,7 @@ export<-"/home/gabrielpehls/sem/outputs"
 
 ##   quais quebras usar
 
-quebras<-c("VERTICAL", "CAMPUS", "DEGREE", "INGRESSO","Finished")
+quebras<-c("Finished", "CAMPUS", "DEGREE", "INGRESSO", "VERTICAL")
 
 
 ### modelo descrito completo
