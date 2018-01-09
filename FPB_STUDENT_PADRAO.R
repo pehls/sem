@@ -377,7 +377,7 @@ export<-"/home/gabrielpehls/sem/outputs"
 
 ##   quais quebras usar
 
-quebras<-c("Finished", "CAMPUS", "DEGREE", "INGRESSO", "VERTICAL")
+quebras<-c("Finished", "CAMPUS", "VERTICAL", "DEGREE", "INGRESSO")
 
 
 ### modelo descrito completo
@@ -405,7 +405,7 @@ SAT_00_02~infra+image+inter+std_services+comunic+program+financial_serv+employ+c
 SAT_00_01~infra+image+inter+std_services+comunic+program+financial_serv+employ+call+coord+disc_online+faculty+SAT_00_02
 NPS_01_01~SAT_00_01+image'
 
-constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","disc_online","faculty")
+constructs <- c("campus","classroom","it_labs","specific_labs","library","blackboard","program","disc_online","faculty","coord","financial","std_services","comunic","image")
 var_dep_eq<-c("SAT_00_02","SAT_00_01","NPS_01_01")
 segunda_ordem<-c("infra")
 quebras_excluidas <- NULL
