@@ -362,7 +362,7 @@ data_raw <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A
                       header=T,
                       use.value.labels = F,
                       use.missings = T)
-
+data_raw <- data_raw[which(data_raw$ANO_RESP == 2017),]
 ## baixar os dados com labels:
 
 data_value_labels <- read.spss("FPB_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav",
@@ -394,10 +394,10 @@ call=~CALL_01_CALL_01_01+CALL_01_CALL_01_02+CALL_01_CALL_01_03+CALL_01_CALL_01_0
 employ=~EMPL_02_EMPL_02_01+EMPL_02_EMPL_02_02+EMPL_02_EMPL_02_03+EMPL_02_EMPL_02_04+EMPL_02_EMPL_02_05
 financial_serv=~FSERV_01_FSERV_01_01+FSERV_01_FSERV_01_02+FSERV_01_FSERV_01_03+FSERV_01_FSERV_01_04
 program=~PROG_02_PROG_02_01+PROG_02_PROG_02_02+PROG_02_PROG_02_03+PROG_02_PROG_02_04+PROG_02_PROG_02_05
-disc_online=~ELEAR_02_ELEAR_02_01+ELEAR_02_ELEAR_02_02+ELEAR_02_ELEAR_02_03+ELEAR_02_ELEAR_02_04+ELEAR_02_ELEAR_02_05+ELEAR_02_ELEAR_02_06
+disc_online=~ELEAR_02_ELEAR_02_01+ELEAR_02_ELEAR_02_02+ELEAR_02_ELEAR_02_03+ELEAR_02_ELEAR_02_04+ELEAR_02_ELEAR_02_05
 comunic=~COMM_01_COMM_01_01+COMM_01_COMM_01_02+COMM_01_COMM_01_03+COMM_01_COMM_01_06+COMM_01_COMM_01_07
 std_services=~SSERV_01_SSERV_01_01+SSERV_01_SSERV_01_02+SSERV_01_SSERV_01_03+SSERV_01_SSERV_01_04
-inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_04+INTL_01_INTL_01_05+INTL_01_INTL_01_06+INTL_01_INTL_01_07
+inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_03+INTL_01_INTL_01_04+INTL_01_INTL_01_05+INTL_01_INTL_01_07
 image=~IMG_01_IMG_01_01+IMG_01_IMG_01_02+IMG_01_IMG_01_03
 #
 infra=~campus+classroom+it_labs+specific_labs+library+blackboard
@@ -888,6 +888,42 @@ for(q in 1:length(quebras)){
       
       
     }
+    
+    ############# vamos tirar aquelas regressoes cujas variaveis independentes
+    ############# ficaram vazias
+    
+    HS.model_aux <- NULL
+    HS.model_aux<-strsplit(HS.model,
+                           split=c("\\n"))
+    
+    for(i in 1:length(HS.model_aux[[1]])){
+      HS.model_aux2 <- NULL
+      HS.model_aux2<-strsplit(trimws(HS.model_aux[[1]][i]),
+                              split=c("\\~"))
+      
+      
+      if(length(HS.model_aux2[[1]])<2){
+        HS.model_aux[[1]][i]<-NA
+      }
+      
+      
+      
+    }
+    HS.model_aux <- HS.model_aux[[1]][complete.cases(HS.model_aux)]
+    modelo2<-NULL
+    HS.model2 <- NULL
+    for (i in 1:length(HS.model_aux)) {
+      var_lat_aux2 <- NULL
+      var_lat_aux2<-(paste(unlist(HS.model_aux[i]),"\n"))
+      modelo2<-paste(var_lat_aux2, collapse = " ")
+      #modelo2<-substr(modelo2, 1, nchar(modelo2)-2)
+      #modelo2<-paste(var_lat_aux2[i], modelo2,"\n")
+      HS.model2<-paste(HS.model2, modelo2)
+    }
+    
+    
+    HS.model <- HS.model2
+    
     
     
     fit_aux<-NULL
