@@ -1,39 +1,41 @@
-
-
-quebras<-c( "Finished", "CAMPUS", "VERTICAL", "DEGREE", "INGRESSO")
+quebras<-c("Finished", "VERTICAL", "DEGREE", "INGRESSO")
 
 
 ### modelo descrito completo
 model_completo <- '
-classroom=~INF_02_INF_02_03+INF_02_INF_02_04+INF_02_INF_02_05+INF_02_INF_02_06+INF_02_INF_02_07
-it_labs=~INF_03_INF_03_01+INF_03_INF_03_02+INF_03_INF_03_03+INF_03_INF_03_04+INF_03_INF_03_06
-specific_labs=~INF_04_INF_04_01+INF_04_INF_04_02+INF_04_INF_04_03+INF_04_INF_04_06
-library=~INF_05_INF_05_02+INF_05_INF_05_04+INF_05_INF_05_10+INF_05_INF_05_09+INF_05_INF_05_07
-blackboard=~INF_06_INF_06_01+INF_06_INF_06_02+INF_06_INF_06_04+INF_06_INF_06_07+INF_06_INF_06_08
 program=~PROG_02_PROG_02_01+PROG_02_PROG_02_02+PROG_02_PROG_02_03+PROG_02_PROG_02_04+PROG_02_PROG_02_05
 disc_online=~ELEAR_02_ELEAR_02_01+ELEAR_02_ELEAR_02_02+ELEAR_02_ELEAR_02_03+ELEAR_02_ELEAR_02_04+ELEAR_02_ELEAR_02_05+ELEAR_02_ELEAR_02_06
 faculty=~PROF_02_PROF_02_01+PROF_02_PROF_02_02+PROF_02_PROF_02_03+PROF_02_PROF_02_04+PROF_02_PROF_02_05+PROF_02_PROF_02_06+PROF_02_PROF_02_07+PROF_02_PROF_02_08
-coord=~COORD_02_COORD_02_01+COORD_02_COORD_02_02+COORD_02_COORD_02_03+COORD_02_COORD_02_04
 financial_serv=~FSERV_01_FSERV_01_01+FSERV_01_FSERV_01_02+FSERV_01_FSERV_01_03+FSERV_01_FSERV_01_04
 std_services=~SSERV_01_SSERV_01_01+SSERV_01_SSERV_01_02+SSERV_01_SSERV_01_03+SSERV_01_SSERV_01_04
-comunic=~COMM_01_COMM_01_01+COMM_01_COMM_01_02+COMM_01_COMM_01_03+COMM_01_COMM_01_04+COMM_01_COMM_01_05+COMM_01_COMM_01_06+COMM_01_COMM_01_07
-image=~IMG_01_IMG_01_01+IMG_01_IMG_01_02+IMG_01_IMG_01_03
-campus=~INF_01_INF_01_01+INF_01_INF_01_02+INF_01_INF_01_04+INF_01_INF_01_06+INF_01_INF_01_09+INF_01_INF_01_11+INF_01_INF_01_13+INF_01_INF_01_15+INF_01_INF_01_12
-call=~CALL_01_CALL_01_01+CALL_01_CALL_01_02+CALL_01_CALL_01_03+CALL_01_CALL_01_04+CALL_01_CALL_01_05
-employ=~EMPL_02_EMPL_02_02+EMPL_02_EMPL_02_03+EMPL_02_EMPL_02_04+EMPL_02_EMPL_02_05+EMPL_02_EMPL_02_06
-inter=~EMPL_02_EMPL_02_01+EMPL_02_INTL_01_02+EMPL_02_INTL_01_03+EMPL_02_INTL_01_04+EMPL_02_INTL_01_05+EMPL_02_INTL_01_06
+call=~CALL_01_CALL_01_01+CALL_01_CALL_01_02+CALL_01_CALL_01_03+CALL_01_CALL_01_04
+campus=~INF_01_INF_01_01+INF_01_INF_01_02+INF_01_INF_01_04+INF_01_INF_01_09+INF_01_INF_01_11+INF_01_INF_01_13+INF_01_INF_01_15
+blackboard=~INF_06_7+INF_06_20+INF_06_22+INF_06_23+INF_06_24
+coord=~COORD_02_1+COORD_02_2+COORD_02_3+COORD_02_5
+inter=~INTL_01_INTL_01_01+INTL_01_INTL_01_02+INTL_01_INTL_01_05+INTL_01_INTL_01_07
+comunic=~COMM_01_COMM_01_01+COMM_01_COMM_01_02+COMM_01_COMM_01_04+COMM_01_COMM_01_05+COMM_01_COMM_01_06+COMM_01_COMM_01_07
+tutor=~FAC_16_03_FAC_16_03_01+FAC_16_03_FAC_16_03_02+FAC_16_03_FAC_16_03_04+FAC_16_03_FAC_16_03_06
+image=~IMG_01_1+IMG_01_6+IMG_01_7
 #
-infra=~campus+classroom+it_labs+specific_labs+library+blackboard
-global=~employ+inter
-SAT_00_02~infra+faculty+coord+call+global+financial_serv+program+disc_online+comunic+std_services+image
-SAT_00_01~infra+faculty+coord+call+global+financial_serv+program+disc_online+comunic+std_services+image+SAT_00_02
+infra=~campus+blackboard
+SAT_00_02~infra+tutor+faculty+coord+call+financial_serv+program+disc_online+comunic+std_services+inter+image
+SAT_00_01~infra+tutor+faculty+coord+call+financial_serv+program+disc_online+comunic+std_services+inter+image+SAT_00_02
 NPS_01_01~SAT_00_01+image'
 
-
-
-constructs <- c("classroom","it_labs","specific_labs","library","blackboard","program","disc_online","faculty","coord","financial_serv","std_services","comunic","image","campus","call","employ","inter")
+constructs <- c("program","disc_online","faculty","financial_serv","std_services","call","employ","campus","blackboard","coord","inter","comunic","image")
 var_dep_eq<-c("SAT_00_02","SAT_00_01","NPS_01_01")
-segunda_ordem<-c("infra","global")
+segunda_ordem<-c("infra")
+fileName <-"EaD%20Laureate_Student%20Satisfaction%202017_DB_V1_Gradua%C3%A7%C3%A3o.sav"
+drop_key <-"vb1t8imoagpadj8"
+path_upload <-  "EaD"
+ano_atual <- 2017
+
+multiplesem(fileName, drop_key, path_upload, ano_atual, 
+            quebras, 
+            model_completo, 
+            constructs, 
+            var_dep_eq, 
+            segunda_ordem)
 
 multiplesem <- function (fileName, drop_key, path_upload, ano_atual, 
                          quebras , 
@@ -65,7 +67,7 @@ multiplesem <- function (fileName, drop_key, path_upload, ano_atual,
   var_retirada_porT2B <- NULL
   
   #download arquivos 
-  dl_from_dropbox(fileName, key)
+  dl_from_dropbox(fileName, drop_key)
   dl_from_dropbox(".httr-oauth","1z9mwuxpqjsw8vl")
   dl_from_dropbox("token.rds","nl74tpnq9krj54z")
   token <- readRDS("token.rds")
@@ -1359,7 +1361,7 @@ multiplesem <- function (fileName, drop_key, path_upload, ano_atual,
           input <- var_retirada_porT2B
           writeWorksheet(exc, input, sheet ='VarRetT2B',header=T,rownames = T, startRow = 1, startCol = 2)
           saveWorkbook(exc)
-          drop_upload(fileName, path = path_upload)
+          #drop_upload(fileName, path = path_upload)
         }}
       var_retirada_porT2B <- NULL
       resumo_modelo = NULL
@@ -1374,9 +1376,9 @@ multiplesem <- function (fileName, drop_key, path_upload, ano_atual,
     }
   }
   write(quebras_excluidas, file="quebras_excluidas.txt")
-  drop_upload("quebras_excluidas.txt", path = path_upload)
-  save.image("IBMR2.RData")
-  history("IBMR2.Rhistory")	
+  #drop_upload("quebras_excluidas.txt", path = path_upload)
+  save.image(paste(path_upload,".RData",sep=""))
+  history(paste(path_upload,".Rhistory",sep=""))
 }
 dl_from_dropbox <- function(x, key) {
   bin <- getBinaryURL(paste0("https://dl.dropboxusercontent.com/s/", key, "/", x),
