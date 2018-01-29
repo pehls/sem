@@ -5,15 +5,10 @@
 
 ## Machine type 
 #### n1-highmem-4 (4 vCPUs, 26 GB de memória),
-#### ssd 30 gb
-## CPU Platform
-#### Intel Broadwell
-## Zone
-#### southamerica-east1-c
+#### hd 10 gb
 ## Debian Config on GCP
 #### sudo apt-get install r-base
 #### sudo apt-get install openjdk-8-jdk
-#### sudo apt-get install openjdk-8-source #opcional
 #### sudo apt-get install r-cran-rjava
 #### sudo apt-get install curl
 #### sudo apt-get install libssl-dev
