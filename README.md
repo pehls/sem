@@ -1,10 +1,10 @@
 # sem - Projeto de Complex Survey Structural Equation Modeling 
-## Roda em uma VM ubuntu 17.10 no google cloud platform
+## Roda em uma VM Debian 9 no google cloud platform
 
 # GCP Config 
 
 ## Machine type 
-#### n1-highmem-4 (4 vCPUs, 26 GB de memória),
+#### n1-highmem-8 (8 vCPUs, 52 GB de memória),
 #### hd 10 gb
 ## Debian Config on GCP
 #### sudo apt-get install r-base
