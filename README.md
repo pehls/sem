@@ -19,12 +19,12 @@
 ## To open R, simply write "R"
 ## if process was killed sometime, open  /var/log/kern.log to examinate it;
 ## or use dmesg to examinate the kernel log, too.
-## Caso seja identificado problema com o R 3.3:
-### sudo apt-get update
-### sudo nano /etc/apt/sources.list
-#### Dentro do arquivo adicionar (ou seja, editando o mesmo):
-### deb http://cran.rstudio.com/bin/linux/debian stretch-cran35/
-### ctrl o enter (para salvar)
-### ctrl x (para sair)
-### sudo apt-get update
-### instalar o restante dos pacotes
+### Caso seja identificado problema com o R 3.3:
+#### sudo apt-get update
+#### sudo nano /etc/apt/sources.list
+### Dentro do arquivo adicionar (ou seja, editando o mesmo):
+#### deb http://cran.rstudio.com/bin/linux/debian stretch-cran35/
+#### ctrl o enter (para salvar)
+#### ctrl x (para sair)
+#### sudo apt-get update
+#### instalar o restante dos pacotes
