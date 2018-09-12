@@ -26,5 +26,6 @@
 #### deb http://cran.rstudio.com/bin/linux/debian stretch-cran35/
 #### ctrl o enter (para salvar)
 #### ctrl x (para sair)
-#### sudo apt-get update
-#### instalar o restante dos pacotes
+#### sudo apt-get update (provavelmente dará problema com assinatura do pacote, não tem problema :) )
+#### instalar o r-base
+#### entrar no R e instalar o restante dos pacotes
