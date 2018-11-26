@@ -7,12 +7,6 @@
 #### n1-highmem-8 (8 vCPUs, 52 GB de memória),
 #### hd 10 gb
 ## Debian Config on GCP
-#### sudo nano /etc/apt/sources.list
-### Dentro do arquivo adicionar (ou seja, editando o mesmo):
-#### deb http://cran.rstudio.com/bin/linux/debian stretch-cran35/
-#### ctrl o enter (para salvar)
-#### ctrl x (para sair)
-#### sudo apt-get update (provavelmente dará problema com assinatura do pacote, não tem problema :) )
 #### sudo apt-get install r-base
 #### sudo apt-get install openjdk-8-jdk
 #### sudo apt-get install r-cran-rjava
@@ -22,6 +16,12 @@
 #### sudo apt-get install libxml2-dev
 #### sudo apt-get install libgsl0ldbl
 #### sudo apt-get install gsl-bin libgsl0-de
+#### sudo nano /etc/apt/sources.list
+### Dentro do arquivo adicionar (ou seja, editando o mesmo):
+#### deb http://cran.rstudio.com/bin/linux/debian stretch-cran35/
+#### ctrl o enter (para salvar)
+#### ctrl x (para sair)
+#### sudo apt-get update (provavelmente dará problema com assinatura do pacote, não tem problema :) )
 ## To open R, simply write "R"
 ## if process was killed sometime, open  /var/log/kern.log to examinate it;
 ## or use dmesg to examinate the kernel log, too.
