@@ -22,6 +22,7 @@
 #### ctrl o enter (para salvar)
 #### ctrl x (para sair)
 #### sudo apt-get update (provavelmente dará problema com assinatura do pacote, não tem problema :) )
+#### sudo apt-get install r-base
 ## To open R, simply write "R"
 ## if process was killed sometime, open  /var/log/kern.log to examinate it;
 ## or use dmesg to examinate the kernel log, too.
