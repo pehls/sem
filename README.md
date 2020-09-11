@@ -1,8 +1,14 @@
 # sem - Projeto de Complex Survey Structural Equation Modeling
 
-Objeto de Estudo do meu TCC em Sistemas de Informação, na UniRitter.
+-Objeto de Estudo do meu TCC em Sistemas de Informação, na UniRitter.
 
-Visa analisar o impacto da remoção de outliers e da utilização de Bootstrap nas Equações Estruturais, no que tange a métricas e também na velocidade e requerimentos de hardware para a execução do mesmo.
+-Visa analisar o impacto da remoção de outliers e da utilização de Bootstrap nas Equações Estruturais, no que tange a métricas e também na velocidade e requerimentos de hardware para a execução do mesmo;
+
+-Através de Métricas comuns às Equações Estruturais, como o CFI, RMSEA e um teste de Diferenças significativas dos coeficientes, via Teste Z, implementado via campos calculados no Tableau Desktop, verificamos que a utilização de um bootstrap com o mínimo de 400 linhas aleatórias da nossa base total não modifica de forma significativa os mesmos, assim como mantém o CFI e a raiz do erro médio quadrático em um nível adequado segundo a literatura (Hair, Black, Babin, Anderson @ Multivariate Data Analysis, 2014);
+
+-Identificada a possibilidade de diminuir o tempo de execução para entre 8 e 11 minutos (por vez), diminuindo a memória RAM alocada para o R de um pico de 12GB para cerca de 7GB, tornando possível a utilização de um computador local ao invés de uma máquina virtual, conforme o projeto original;
+
+-Necessita de maiores testes em mercados diferentes, devido á proximidade dos mercados das IES utilizadas, bem como testes com tamanhos de bases diferentes, para comprovar os resultados.
 
 ## Originalmente, roda em uma VM Debian 9 no google cloud platform
 
